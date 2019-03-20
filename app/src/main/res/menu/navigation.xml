@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_empresas"
+        android:icon="@drawable/ic_store"
+        android:title="@string/text_empresas" />
+
+    <item
+        android:id="@+id/menu_eventos"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/text_eventos" />
+
+    <item
+        android:id="@+id/menu_mapa"
+        android:icon="@drawable/ic_map"
+        android:title="@string/text_mapa" />
+
+    <item
+        android:id="@+id/menu_carrito"
+        android:icon="@drawable/ic_cart"
+        android:title="@string/text_carrito" />
+
+    <item
+        android:id="@+id/menu_cuenta"
+        android:icon="@drawable/ic_person"
+        android:title="@string/text_cuenta" />
+
+</menu>

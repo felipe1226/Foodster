@@ -1,0 +1,89 @@
+<resources>
+    <string name="app_name">Foodster</string>
+    <!--<string name="title_activity_principal">Principal</string>
+
+    <string name="search">Search</string>
+
+    <string name="resume">Analizar</string>
+    <string name="pause">Pausar</string>
+    <string name="title_activity_mapa">Map</string>-->
+
+    <string name="text_carga">Cargando…</string>
+
+    <string name="text_completar_campos">Complete los campos, por favor</string>
+
+    Presione de nuevo para salir
+
+
+
+    <string name="text_mis_direcciones">Mis direcciones</string>
+
+    <string name="text_siguiente">Siguiente</string>
+    <string name="text_aplicar">Aplicar</string>
+    <string name="text_confirmar">Confirmar</string>
+    <string name="text_aceptar">Aceptar</string>
+    <string name="text_cancelar">Cancelar</string>
+    <string name="text_detalles">Detalles</string>
+
+
+    //Login
+    <string name="edit_usuario">Usuario o Email</string>
+    <string name="text_password">Contraseña</string>
+
+    <string name="check_recordar">Recordar cuenta</string>
+    <string name="check_session">No cerrar sesión</string>
+
+    <string name="button_iniciar">Iniciar sesión</string>
+
+    <string name="text_pregunta_cuenta">¿No tienes una cuenta?</string>
+    <string name="button_registro">Registrate aquí</string>
+
+    <string name="text_pass_erronea">Contraseña erronea</string>
+    <string name="text_usuario_erroneo">Usuario o email no registrado</string>
+
+    <string name="text_pulsar_salir">Presione de nuevo para salir</string>
+
+
+
+
+
+    //Navigator_principal
+
+    <string name="text_empresas">Empresas</string>
+    <string name="text_eventos">Eventos</string>
+    <string name="text_mapa">Mapa</string>
+    <string name="text_carrito">Carrito</string>
+    <string name="text_cuenta">Cuenta</string>
+
+    //Fragment Empresas
+    <string name="text_buscar">Buscar...</string>
+    <string name="text_horarios">Horarios</string>
+    <string name="mensaje_agregar_carrito">Producto agregado al carrito</string>
+
+    <string name="mensaje_agregar_favorito">Agregado a favoritos</string>
+
+    //Fragment Empresas
+    <string name="text_filtrar">Filtrar</string>
+    <string name="text_categorias">Categorias</string>
+
+
+    <string name="eliminar_carrito">¿Eliminar el producto del carrito?</string>
+
+    <string name="text_eliminando">Eliminando...</string>
+
+    //Fragment Cuenta
+    <string name="text_perfil">Perfil</string>
+    <string name="text_notificaciones">Notificaciones</string>
+    <string name="text_favoritos">Favoritos</string>
+    <string name="text_cerrar_sesion">Cerrar sesión</string>
+
+    //Fragment Cuenta
+    <string name="text_total_pago">Total a pagar:</string>
+    <string name="text_realizar_pedido">Realizar pedido</string>
+    <string name="text_metodo_pago">Método de pago</string>
+
+    <string name="text_efectivo">Efectivo</string>
+    <string name="text_tarjeta">Tarjeta</string>
+    <string name="text_efectivo_pago">¿Con cuanto desea pagar?</string>
+
+</resources>
