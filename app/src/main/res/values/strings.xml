@@ -15,7 +15,6 @@
     Presione de nuevo para salir
 
 
-
     <string name="text_mis_direcciones">Mis direcciones</string>
 
     <string name="text_siguiente">Siguiente</string>
@@ -42,9 +41,6 @@
     <string name="text_usuario_erroneo">Usuario o email no registrado</string>
 
     <string name="text_pulsar_salir">Presione de nuevo para salir</string>
-
-
-
 
 
     //Navigator_principal
@@ -85,5 +81,6 @@
     <string name="text_efectivo">Efectivo</string>
     <string name="text_tarjeta">Tarjeta</string>
     <string name="text_efectivo_pago">¿Con cuanto desea pagar?</string>
+
 
 </resources>

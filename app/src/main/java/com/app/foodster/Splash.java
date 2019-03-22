@@ -1,19 +1,22 @@
 package com.app.foodster;
 
-import android.app.ProgressDialog;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
+import android.transition.Fade;
+import android.transition.Transition;
 import android.util.Log;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
+import android.view.WindowManager;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -22,9 +25,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.app.foodster.Empresa.AdaptadorListaEmpresas;
 import com.app.foodster.Empresa.DatosEmpresa;
+import com.app.foodster.Empresa.ListaEmpresas;
 import com.app.foodster.Persona.HiloPedidos;
-import com.app.foodster.Persona.RegistroPersona;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,35 +36,22 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Login extends AppCompatActivity implements Response.Listener<JSONObject>, Response.ErrorListener{
-
-    String TAG = this.getClass().getName();
-    boolean salir = false;
-
-    int idUsuario;
-    boolean usuarioValido;
+public class Splash extends AppCompatActivity implements Response.Listener<JSONObject>, Response.ErrorListener{
 
     GlobalState gs;
 
-    EditText teclado;
-    EditText etUsuario;
-    EditText etPassword;
-
-    CheckBox cbRecordar;
-    CheckBox cbSession;
-
-    Button btnIngresar;
-    Button btnRegistro;
-
-    ProgressDialog progress;
-
-    String usuario;
-    String password;
 
     String consulta;
 
+    int idUsuario;
+    String usuario;
+    String password;
+    String recordar;
+
     private ArrayList<DatosEmpresa> datosEmpresa;
     ArrayList<String> categorias;
+
+    int cargar;
 
     RequestQueue request;
     JsonObjectRequest jsonObjectRequest;
@@ -68,94 +59,63 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        setContentView(R.layout.activity_splash);
 
         gs = (GlobalState)getApplication();
 
-
-
         request = Volley.newRequestQueue(getApplicationContext());
 
-        usuario = getIntent().getExtras().getString("usuario");
-        password = getIntent().getExtras().getString("password");
-        String recordar = getIntent().getExtras().getString("recordar");
+    }
 
-        progress = new ProgressDialog(Login.this);
-        progress.setMessage(getString(R.string.text_carga));
-        progress.setCanceledOnTouchOutside(false);
+    public void verificarPreferencias(){
+        SharedPreferences preferencesCuenta = getSharedPreferences("cuenta", Context.MODE_PRIVATE);
+        usuario = preferencesCuenta.getString("usuario", "");
+        password = preferencesCuenta.getString("password", "");
+        recordar = preferencesCuenta.getString("recordar", "");
+        final String session = preferencesCuenta.getString("session", "");
 
-        etUsuario = findViewById(R.id.etUsuario);
-        etPassword = findViewById(R.id.etPassword);
-
-        etUsuario.setText(usuario);
-        etPassword.setText(password);
-
-        cbRecordar = findViewById(R.id.cbRecordar);
-
-        cbSession = findViewById(R.id.cbSession);
-
-        if(recordar.compareTo("") != 0){
-            cbRecordar.setChecked(true);
+        if(session.compareTo("") == 0){
+            cargar(1);
         }
+        else{
+            consultarUsuario(usuario);
+        }
+    }
 
-        btnIngresar = findViewById(R.id.btnIngresar);
-        btnIngresar.setOnClickListener(new View.OnClickListener(){
+    private void cargar(final int accion){
+        new Handler().postDelayed(new Runnable() {
+            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
-            public void onClick(View view) {
-                InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
-                inputMethodManager.hideSoftInputFromWindow(etPassword.getWindowToken(), 0);
+            public void run() {
+                Transition transition = new Fade(Fade.OUT);
+                transition.setDuration(1000);
+                transition.setInterpolator(new DecelerateInterpolator());
 
-                etUsuario = findViewById(R.id.etUsuario);
-                usuario = etUsuario.getText().toString().trim();
+                getWindow().setExitTransition(transition);
+                Intent intent = null;
+                if(accion == 1){
+                    intent = new Intent(Splash.this, Login.class);
 
-                etPassword = findViewById(R.id.etPassword);
-                password = etPassword.getText().toString().trim();
-
-                if(usuario.compareTo("") != 0 && password.compareTo("") != 0) {
-                    usuarioValido = false;
-                    consultarUsuario(usuario);
+                    intent.putExtra("usuario", usuario);
+                    intent.putExtra("password", password);
+                    intent.putExtra("recordar", recordar);
                 }
                 else{
-                    Toast.makeText(getApplicationContext(), getString(R.string.text_completar_campos), Toast.LENGTH_SHORT).show();
+                    intent = new Intent(Splash.this, Principal.class);
                 }
+
+                startActivity(intent, ActivityOptionsCompat.makeSceneTransitionAnimation(Splash.this).toBundle());
             }
-        });
-
-        btnRegistro = findViewById(R.id.btnRegistro);
-        btnRegistro.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                RegistrarPersona();
-            }
-        });
-    }
-
-    public void Ingresar(){
-        Intent ingreso = new Intent(Login.this, Principal.class);
-
-        ingreso.addFlags(ingreso.FLAG_ACTIVITY_CLEAR_TOP | ingreso.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(ingreso);
-        progress.hide();
-    }
-
-    public void RegistrarPersona(){
-
-        Intent registro = new Intent(this, RegistroPersona.class);
-        registro.addFlags(registro.FLAG_ACTIVITY_CLEAR_TOP | registro.FLAG_ACTIVITY_SINGLE_TOP);
-
-        startActivity(registro);
+        }, 2000);
     }
 
     public void consultarUsuario(String usuario) {
-
-            /*try {
-                String passwdMd5 = this.toMd5(password);
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }*/
-
         consulta = "usuario";
-        progress.show();
         String url = "http://" + gs.getIp() + "/Usuario/consultar_usuario.php?usuario=" + usuario;
 
         url = url.replace(" ", "%20");
@@ -197,45 +157,12 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
         request.add(jsonObjectRequest);
     }
 
-    private void verificarPreferencias(){
-
-        SharedPreferences preferencesCuenta = getSharedPreferences("cuenta", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editorCuenta = preferencesCuenta.edit();
-
-        if(cbRecordar.isChecked() || cbSession.isChecked()){
-            editorCuenta.putString("usuario", etUsuario.getText().toString().trim());
-            editorCuenta.putString("password", etPassword.getText().toString().trim());
-        }
-
-        if(cbRecordar.isChecked()){
-            editorCuenta.putString("recordar", "si");
-        }
-        else{
-            editorCuenta.putString("usuario","");
-            editorCuenta.putString("password", "");
-            editorCuenta.putString("recordar", "");
-            etPassword.setText("");
-            etUsuario.setText("");
-        }
-
-        if(cbSession.isChecked()){
-            editorCuenta.putString("session", "si");
-        }
-        else{
-            editorCuenta.putString("session", "");
-        }
-        editorCuenta.commit();
-    }
-
     @Override
     protected void onPostResume() {
         super.onPostResume();
 
-        if(gs.getIdPersona() != 0){
-            cbSession.setChecked(false);
-        }
+        verificarPreferencias();
     }
-
 
     @Override
     public void onResponse(JSONObject response) {
@@ -247,28 +174,16 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
         boolean existeCategoria;
         try {
             jsonObject = datos.getJSONObject(0);
-
             if(jsonObject.optString("id").compareTo("0") != 0) {
                 if(consulta.compareTo("usuario") == 0){
                     idUsuario = jsonObject.optInt("id");
                     if(idUsuario != 0){
                         String pass = jsonObject.optString("password");
 
-
                         if(pass.compareTo(password) == 0){
                             gs.setUsuario(jsonObject.optString("usuario"));
                             gs.setPassword(pass);
-                            usuarioValido = true;
                         }
-                        else{
-                            usuarioValido = false;
-                            progress.hide();
-                            Toast.makeText(getApplicationContext(), getString(R.string.text_pass_erronea), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    else{
-                        progress.hide();
-                        Toast.makeText(getApplicationContext(),getString(R.string.text_usuario_erroneo), Toast.LENGTH_SHORT).show();
                     }
                 }
                 if(consulta.compareTo("persona") == 0){
@@ -278,7 +193,6 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
                     gs.setEmail(jsonObject.optString("email"));
                     gs.setidCiudad(jsonObject.optInt("id_ciudad"));
                 }
-
                 if(consulta.compareTo("pedido") == 0){
                     existePedidos = true;
                 }
@@ -325,19 +239,20 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
                     gs.setCategorias(categorias);
                     gs.setFiltroCategorias(categorias);
                 }
+
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         gs.setActualizaEmpresas(true);
-        if(consulta.compareTo("usuario") == 0 && usuarioValido){
+        if(consulta.compareTo("usuario") == 0){
             obtenerDatos();
         }
         else{
             if(consulta.compareTo("persona") == 0){
-                verificarPreferencias();
                 consultarPedidos();
+                //cargar(2);
             }
             else{
                 if(consulta.compareTo("pedido") == 0){
@@ -349,12 +264,12 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
                         gs.setHiloPedidos(hiloPedidos);
                     }
                     else{
-                        Ingresar();
+                        cargar(2);
                     }
                 }
                 else{
                     if(consulta.compareTo("empresa") == 0){
-                        Ingresar();
+                        cargar(2);
                     }
                 }
             }
@@ -369,30 +284,6 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
         else{
             Toast.makeText(getApplicationContext(), "Error de login "+ error.toString(), Toast.LENGTH_SHORT).show();
         }
-        progress.hide();
         Log.i("ERROR", error.toString());
-    }
-
-    @Override
-    public void onBackPressed() {
-
-        Log.d(TAG, "click");
-
-        if(salir){
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivity(intent);
-            finish();
-            System.exit(0);
-        }
-        salir = true;
-        Toast.makeText(Login.this, getString(R.string.text_pulsar_salir), Toast.LENGTH_SHORT).show();
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                salir = false;
-            }
-        },3000);
     }
 }

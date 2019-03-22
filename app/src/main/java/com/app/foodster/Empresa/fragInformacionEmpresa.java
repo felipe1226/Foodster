@@ -363,6 +363,7 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
                                 if(promocion != 0){
                                     String descPromocion = (jsonObject.optString("descripcion"));
                                     int descuento = (jsonObject.optInt("descuento"));
+                                    promocion = (int)(precio - ( precio * (descuento/100)));
                                     String fecha = jsonObject.optString("fecha_inicio") + " - " + jsonObject.optString("fecha_fin");
                                     listaProductos.add(new ListaProductos(idEmpresa, id, carta, idProducto, producto, descripcion, precio,
                                             promocion, descPromocion, descuento, fecha));

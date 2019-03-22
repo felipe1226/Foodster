@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Login"
+            android:name=".Splash"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,7 +32,7 @@
             android:name=".Principal"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustNothing|stateHidden"/>
+            android:windowSoftInputMode="adjustNothing|stateHidden" />
         <activity
             android:name=".Empresa.InformacionEmpresa"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -41,7 +41,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".Producto.InformacionProducto"
+        <activity
+            android:name=".Producto.InformacionProducto"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Login"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 

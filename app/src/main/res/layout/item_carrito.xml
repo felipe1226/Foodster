@@ -45,19 +45,29 @@
         app:layout_constraintTop_toTopOf="@+id/tvPrecio" />
 
     <TextView
+        android:id="@+id/textView16"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="Detalles: "
+        android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="@+id/tvPrecio"
+        app:layout_constraintTop_toBottomOf="@+id/tvPrecio" />
+
+    <TextView
         android:id="@+id/tvDescProducto"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
         android:layout_marginEnd="25dp"
+        android:layout_marginLeft="5dp"
         android:layout_marginRight="25dp"
-        android:layout_marginTop="5dp"
-        android:text="Detalles:"
+        android:layout_marginStart="5dp"
         android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnDetalles"
-        app:layout_constraintStart_toStartOf="@+id/tvPrecio"
-        app:layout_constraintTop_toBottomOf="@+id/tvPrecio" />
+        app:layout_constraintStart_toEndOf="@+id/textView16"
+        app:layout_constraintTop_toTopOf="@+id/textView16" />
 
     <ImageButton
         android:id="@+id/btnDetalles"

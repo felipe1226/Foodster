@@ -388,6 +388,5 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
             default:break;
         }
         return false;
-
     }
 }

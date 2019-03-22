@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.app.foodster.Persona.Carrito;
 import com.app.foodster.Persona.Cuenta;
 import com.app.foodster.Empresa.Empresas;
+import com.app.foodster.Persona.Pedido;
 
 public class Principal extends AppCompatActivity {
 
@@ -37,9 +38,16 @@ public class Principal extends AppCompatActivity {
 
         if(savedInstanceState == null){
             if(gs.getFragmentActual() == null){
-                fragment = new Empresas();
+                if(gs.isExistePedidos()){
+                    fragment = new Pedido();
+                }
+                else{
+                    fragment = new Empresas();
+                    gs.setFragmentActualEmpresas("Empresas");
+                }
+
                 gs.setFragmentEmpresas(fragment);
-                gs.setFragmentActualEmpresas("Empresas");
+
                 addFragment();
             }
         }

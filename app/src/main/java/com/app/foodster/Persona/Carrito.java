@@ -3,6 +3,7 @@ package com.app.foodster.Persona;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,14 +33,17 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.app.foodster.Empresa.fragInformacionEmpresa;
 import com.app.foodster.GlobalState;
+import com.app.foodster.Login;
 import com.app.foodster.Producto.fragInformacionProducto;
 import com.app.foodster.R;
 
@@ -48,6 +52,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -74,16 +80,27 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
     ConstraintLayout layout_carrito;
 
+    Button btnPedidos;
+
     TextView tvMensaje;
     TextView tvTotal;
 
     RecyclerView rvEmpresas;
 
     AlertDialog dialogPedido;
+    ProgressDialog progress;
 
     int metodo;
     int idCarrito;
     int total;
+    int idPedido;
+    int contProductos;
+    String nombreProducto;
+    int precioProducto;
+    String detallesProducto;
+    int promocionProducto;
+    ArrayList<ListaCarrito> productos;
+    int contEliminarCarritos;
 
     int empresaPedido;
     String direccionPedido;
@@ -110,6 +127,22 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
         progressEliminar.setCanceledOnTouchOutside(false);
 
         layout_carrito = v.findViewById(R.id.layout_carrito);
+
+        btnPedidos = v.findViewById(R.id.btnPedidos);
+        btnPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment fragment = new Pedido();
+                gs.setFragment(fragment);
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack(null)
+                        .replace(R.id.fragment_container, fragment, fragment.getClass().toString()) // add and tag the new fragment
+                        .commit();
+            }
+        });
 
         tvMensaje = v.findViewById(R.id.tvMensaje);
         tvTotal = v.findViewById(R.id.tvTotal);
@@ -219,6 +252,10 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
         View view = getLayoutInflater().inflate(R.layout.dialog_pedido, null);
 
+        progress = new ProgressDialog(getContext());
+        progress.setMessage("Enviando pedido");
+        progress.setCanceledOnTouchOutside(false);
+
         final LinearLayout layout_direcciones = view.findViewById(R.id.layout_direcciones);
         RecyclerView rvDirecciones = view.findViewById(R.id.rvDirecciones);
 
@@ -325,6 +362,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                     btnConfirmar.setText("Confirmar");
                 }
                 else{
+                    progress.show();
                     realizarPedido();
                 }
             }
@@ -345,7 +383,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
         request.add(jsonObjectRequest);
     }
 
-    private void actualizarDetalles(int idCarrito, String detalles){
+    private void actualizarDetalles(String detalles){
         consulta = "actualizar_detalles";
         String url = "http://" + gs.getIp() + "/Persona/actualizar_detalles.php?idCarrito="+idCarrito+"&detalles="+detalles;
 
@@ -355,7 +393,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
         request.add(jsonObjectRequest);
     }
 
-    private void eliminarCarrito(int idCarrito){
+    private void eliminarCarrito(){
         consulta = "eliminar_carrito";
         String url = "http://" + gs.getIp() + "/Persona/eliminar_carrito.php?idCarrito="+idCarrito;
 
@@ -366,14 +404,126 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
     }
 
     private void realizarPedido(){
-        consulta = "pedido";
-        String url = "http://" + gs.getIp() + "/Persona/realizar_pedido.php?idEmpresa="+empresaPedido+ "&idPersona="+gs.getIdPersona()+"&costo="+costoPedido
-                +"&direccion="+direccionPedido+"&ubicacion="+ubicacionPedido+"&efectivo="+efectivoPedido+"&pago="+pagoPedido;
 
-        url = url.replace(" ", "%20");
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://" + gs.getIp() + "/Persona/realizar_pedido.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
 
-        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
-        request.add(jsonObjectRequest);
+                        if(response.compareTo("0") != 0){
+                            String datos[] = response.split(":");
+                            String id[] = datos[2].split(",");
+                            idPedido = Integer.parseInt(id[0].substring(1, id[0].length()-1));
+                            Toast.makeText(getContext(), "Pedido solicitado", Toast.LENGTH_SHORT).show();
+                            obtenerProductos();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        Toast.makeText(getContext(), "Error "+ error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                Map<String, String> params = new Hashtable<String, String>();
+
+                params.put("idEmpresa", String.valueOf(empresaPedido));
+                params.put("idPersona", String.valueOf(gs.getIdPersona()));
+                params.put("costo", String.valueOf(costoPedido));
+                params.put("direccion", direccionPedido);
+                params.put("ubicacion", ubicacionPedido);
+                params.put("efectivo", String.valueOf(efectivoPedido));
+                params.put("pago", pagoPedido);
+
+                return params;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+        requestQueue.add(stringRequest);
+    }
+
+    private void obtenerProductos(){
+        productos = new ArrayList<>();
+
+        for(int i=0;i<listaEmpresaCarrito.size();i++){
+            if(listaEmpresaCarrito.get(i).getId() == empresaPedido){
+                for(int j=0;j<listaCarritos.size();j++){
+                    if(listaEmpresaCarrito.get(i).getId() == listaCarritos.get(j).getIdEmpresa()){
+                        productos.add(listaCarritos.get(j));
+                    }
+                }
+            }
+        }
+
+        contProductos = 0;
+
+        asignarProducto();
+        registrarProducto();
+    }
+
+    private void asignarProducto(){
+        nombreProducto = productos.get(contProductos).getNombre();
+        precioProducto = productos.get(contProductos).getPrecio();
+        detallesProducto = productos.get(contProductos).getDetalles();
+        promocionProducto = productos.get(contProductos).getPromocion();
+    }
+
+    private void registrarProducto(){
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://" + gs.getIp() + "/Persona/registrar_producto_pedido.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        if(response.compareTo("0") != 0){
+                            contProductos++;
+
+                        }
+                        if(contProductos < productos.size()){
+                            asignarProducto();
+                            registrarProducto();
+                        }
+                        else{
+                            Toast.makeText(getContext(), "Pedido solicitado", Toast.LENGTH_SHORT).show();
+                            contEliminarCarritos = productos.size();
+                            idCarrito = productos.get(contEliminarCarritos-1).getIdCarrito();
+                            eliminarCarrito();
+                            dialogPedido.cancel();
+                            HiloPedidos hiloPedidos = new HiloPedidos(getContext(), getView(), gs);
+                            hiloPedidos.execute();
+                            gs.setHiloPedidos(hiloPedidos);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        Toast.makeText(getContext(), "Error "+ error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+
+                Map<String, String> params = new Hashtable<String, String>();
+
+                params.put("idPedido", String.valueOf(idPedido));
+                params.put("nombre", nombreProducto);
+                params.put("precio", String.valueOf(precioProducto));
+                params.put("detalles", detallesProducto);
+                params.put("promocion", String.valueOf(promocionProducto));
+
+                return params;
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+        requestQueue.add(stringRequest);
     }
 
     private void verInformacion(int idEmpresa, int idProducto, Fragment fragment, View v){
@@ -401,7 +551,6 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
         }
     }
 
-
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void onResponse(JSONObject response) {
 
@@ -427,7 +576,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                         int promocion = jsonObject.optInt("id_promocion");
                         int precio = jsonObject.optInt("precio");
                         int descuento = jsonObject.optInt("descuento");
-                        String detalles = "Detalles: " + jsonObject.optString("detalles");
+                        String detalles = jsonObject.optString("detalles");
 
                         if(idEmpresa != idAnterior) {
                             idAnterior = idEmpresa;
@@ -436,6 +585,10 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                         }
 
                         totalEmpresa = calcularTotalEmpresa(precio, promocion, descuento, totalEmpresa, listaEmpresaCarrito.size()-1);
+
+                        if(promocion != 0){
+                            promocion = (int)(precio - ( precio * ((double)descuento/100)));
+                        }
 
                         listaCarritos.add(new ListaCarrito(jsonObject.optInt("idCarrito"),
                                 jsonObject.optInt("idProducto"),
@@ -458,11 +611,11 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                     layout_carrito.setVisibility(View.VISIBLE);
                 }
                 if(consulta.compareTo("actualizar_detalles") == 0){
-                    auxHolder.tvDetalles.setText("Detalles: " + auxDetalles);
+                    auxHolder.tvDetalles.setText(auxDetalles);
 
                     for(int i=0;i<listaCarritos.size();i++){
                         if(listaCarritos.get(i).getIdCarrito() == idCarrito){
-                            listaCarritos.get(i).setDetalles("Detalles: " + auxDetalles);
+                            listaCarritos.get(i).setDetalles(auxDetalles);
                             break;
                         }
                     }
@@ -482,18 +635,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                     }
 
                     gs.setDatosCarrito(listaCarritos);
-
-                    if(listaCarritos.size() > 0){
-                        verificarEmpresasCarritos();
-                    }
-                    else{
-                        listaEmpresaCarrito = new ArrayList<>();
-                        gs.setDatosEmpresaCarrito(listaEmpresaCarrito);
-
-                        progressBar.setVisibility(View.GONE);
-                        layout_carrito.setVisibility(View.GONE);
-                        tvMensaje.setVisibility(View.VISIBLE);
-                    }
+                    contEliminarCarritos--;
                 }
 
                 if(consulta.compareTo("direccion") == 0){
@@ -513,9 +655,6 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
                     gs.setDatosDireccion(listaDireccion);
                     gs.setActualizaDirecciones(false);
-                }
-                if(consulta.compareTo("pedido") == 0){
-                    Toast.makeText(getContext(), "Pedido solicitado", Toast.LENGTH_SHORT).show();
                 }
             }
             else{
@@ -539,6 +678,28 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
         if(consulta.compareTo("direccion") == 0){
             dialogPedido();
         }
+        else{
+            if(consulta.compareTo("eliminar_carrito") == 0){
+                if(contEliminarCarritos == 0){
+                    progress.cancel();
+                    if(listaCarritos.size() > 0){
+                        verificarEmpresasCarritos();
+                    }
+                    else{
+                        listaEmpresaCarrito = new ArrayList<>();
+                        gs.setDatosEmpresaCarrito(listaEmpresaCarrito);
+
+                        progressBar.setVisibility(View.GONE);
+                        layout_carrito.setVisibility(View.GONE);
+                        tvMensaje.setVisibility(View.VISIBLE);
+                    }
+                }
+                else{
+                    idCarrito = productos.get(contEliminarCarritos-1).getIdCarrito();
+                    eliminarCarrito();
+                }
+            }
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -546,7 +707,6 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
     public void onErrorResponse(VolleyError error) {
         progressEliminar.cancel();
         Toast.makeText(getContext(), "Error "+ error.toString(), Toast.LENGTH_SHORT).show();
-        Log.i("ERROR", error.toString());
     }
 
     public class AdaptadorListaEmpresasCarrito extends RecyclerView.Adapter<Carrito.AdaptadorListaEmpresasCarrito.MyViewHolder> {
@@ -702,12 +862,6 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
             dialogo1.setMessage("Describa los detalles de este producto para su pedido");
 
             final EditText etDetalles = new EditText(dialogo1.getContext());
-            String detalle[] = null;
-
-            if(detalles.compareTo("Detalles: ") != 0){
-                detalle = detalles.split("etalles: ");
-                etDetalles.setText(detalle[1]);
-            }
 
             dialogo1.setView(etDetalles);
 
@@ -717,7 +871,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                     idCarrito = carrito.get(holder.getAdapterPosition()).getIdCarrito();
                     auxDetalles = etDetalles.getText().toString().trim();
                     auxHolder = holder;
-                    actualizarDetalles(idCarrito, auxDetalles);
+                    actualizarDetalles(auxDetalles);
                 }
             });
             dialogo1.setNegativeButton(R.string.text_cancelar, new DialogInterface.OnClickListener() {
@@ -737,7 +891,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                 public void onClick(DialogInterface dialogo1, int id) {
                     idCarrito = carrito.get(holder.getAdapterPosition()).getIdCarrito();
                     progressEliminar.show();
-                    eliminarCarrito(idCarrito);
+                    eliminarCarrito();
                 }
             });
             dialogo1.setNegativeButton(R.string.text_cancelar, new DialogInterface.OnClickListener() {
@@ -757,10 +911,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
             if(carrito.get(i).getPromocion() != 0){
                 myViewHolder.tvPrecio.setPaintFlags( myViewHolder.tvPrecio.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-                int descuento = carrito.get(i).getDescuento();
-
-                int precioPromocion = (int)(precio - ( precio * ((double)descuento/100)));
-                myViewHolder.tvPromocion.setText("$"+precioPromocion);
+                myViewHolder.tvPromocion.setText("$"+carrito.get(i).getPromocion());
                 myViewHolder.tvPromocion.setVisibility(View.VISIBLE);
             }
 

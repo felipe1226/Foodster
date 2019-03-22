@@ -18,6 +18,18 @@
                                 <PersistentState>
                                   <option name="children">
                                     <map>
+                                      <entry key="foregroundImage">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="scalingPercent" value="76" />
+                                                <entry key="trimmed" value="true" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
                                       <entry key="foregroundText">
                                         <value>
                                           <PersistentState>
@@ -45,8 +57,8 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="b9b9b9" />
-                                      <entry key="foregroundAssetType" value="TEXT" />
+                                      <entry key="backgroundColor" value="ffffff" />
+                                      <entry key="foregroundImage" value="F:\Personal\Descargas\Logo solo.png" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -77,7 +89,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/maps/ic_edit_location_black_24dp.xml" />
+                                      <entry key="url" value="jar:file:/C:/Program%20Files/Android/Android%20Studio/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_brightness_1_black_24dp.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -87,7 +99,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_edit_location" />
+                            <entry key="outputName" value="ic_circle" />
                             <entry key="sourceFile" value="C:\Users\HP" />
                           </map>
                         </option>

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.support.v4.app.Fragment;
 
 import com.app.foodster.Empresa.DatosEmpresa;
+import com.app.foodster.Persona.HiloPedidos;
 import com.app.foodster.Persona.ListaCarrito;
 import com.app.foodster.Persona.ListaDireccion;
 import com.app.foodster.Persona.ListaEmpresaCarrito;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 public class GlobalState extends Application {
 
     public String ip = "foodster.com.co/consultasAndroid";
+
+    public HiloPedidos hiloPedidos = null;
 
     public Fragment fragment = null;
     public Fragment fragmentEmpresas = null;
@@ -33,6 +36,7 @@ public class GlobalState extends Application {
     public String email = "";
     public int idCiudad = 0;
 
+    public boolean existePedidos = false;
     public boolean actualizaEmpresas = true;
     public boolean actualizaCarrito =  true;
     public boolean actualizaProductosFavoritos =  true;
@@ -54,6 +58,14 @@ public class GlobalState extends Application {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public HiloPedidos getHiloPedidos() {
+        return hiloPedidos;
+    }
+
+    public void setHiloPedidos(HiloPedidos hiloPedidos) {
+        this.hiloPedidos = hiloPedidos;
     }
 
     public Fragment getFragment() {
@@ -170,7 +182,13 @@ public class GlobalState extends Application {
     }
 
 
+    public boolean isExistePedidos() {
+        return existePedidos;
+    }
 
+    public void setExistePedidos(boolean existePedidos) {
+        this.existePedidos = existePedidos;
+    }
 
     public boolean isActualizaEmpresas() {
         return actualizaEmpresas;

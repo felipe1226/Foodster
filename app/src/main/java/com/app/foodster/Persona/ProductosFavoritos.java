@@ -171,14 +171,21 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
 
                         String detalles = "Detalles: " + jsonObject.optString("detalles");
 
+                        int promocion = jsonObject.optInt("id_promocion");
+                        int precio = jsonObject.optInt("precio");
+                        int descuento = jsonObject.optInt("descuento");
+                        if(promocion != 0){
+                            promocion = (int)(precio - ( precio * ((double)descuento/100)));
+                        }
+
                         listaProductosFavoritos.add(new ListaProductosFavoritos(jsonObject.optInt("idFavorito"),
                                 jsonObject.optInt("idProducto"),
                                 jsonObject.optInt("idEmpresa"),
                                 jsonObject.optString("empresa"),
                                 jsonObject.optString("nombre"),
-                                jsonObject.optInt("precio"),
-                                jsonObject.optInt("id_promocion"),
-                                jsonObject.optInt("descuento"),
+                                precio,
+                                promocion,
+                                descuento,
                                 detalles));
                     }
                     generarFavoritos();
@@ -388,10 +395,7 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
             if(favorito.get(i).getPromocion() != 0){
                 myViewHolder.tvPrecio.setPaintFlags( myViewHolder.tvPrecio.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-                int descuento = favorito.get(i).getDescuento();
-
-                int precioPromocion = (int)(precio - ( precio * ((double)descuento/100)));
-                myViewHolder.tvPromocion.setText("$"+precioPromocion);
+                myViewHolder.tvPromocion.setText("$"+favorito.get(i).getPromocion());
                 myViewHolder.tvPromocion.setVisibility(View.VISIBLE);
             }
 

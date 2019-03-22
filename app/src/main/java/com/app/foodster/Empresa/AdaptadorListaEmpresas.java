@@ -1,7 +1,6 @@
 package com.app.foodster.Empresa;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;

@@ -4,6 +4,7 @@ package com.app.foodster.Producto;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
@@ -183,8 +184,12 @@ public class fragInformacionProducto extends Fragment implements Response.Listen
                     int precio = listaProductos.get(i).getPrecio();
                     tvPrecio.setText("$" + precio);
                     if(listaProductos.get(i).getPromocion() != 0){
-                        calcularPromocion(precio, listaProductos.get(i).getDescuento(), listaProductos.get(i).getDescPromocion(),
-                                listaProductos.get(i).getFecha());
+                        tvPrecio.setPaintFlags( tvPrecio.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                        tvDescuento.setText(listaProductos.get(i).getDescuento() + "%");
+                        tvPromocion.setText("$"+listaProductos.get(i).getPromocion());
+
+                        tvDescPromocion.setText(listaProductos.get(i).getDescripcion());
+                        tvFecha.setText(listaProductos.get(i).getFecha());
                     }
                 }
             }
@@ -308,6 +313,7 @@ public class fragInformacionProducto extends Fragment implements Response.Listen
                         if(promocion != 0){
                             String descPromocion = (jsonObject.optString("descripcion"));
                             int descuento = (jsonObject.optInt("descuento"));
+                            promocion = (int)(precio - ( precio * (descuento/100)));
                             String fecha = jsonObject.optString("fecha_inicio") + " - " + jsonObject.optString("fecha_fin");
                             listaProductos.add(new ListaProductos(idEmpresa, id, carta, idProducto, producto, descProducto, precio,
                                     promocion, descPromocion, descuento, fecha));
@@ -348,7 +354,8 @@ public class fragInformacionProducto extends Fragment implements Response.Listen
                     }
                     if(consulta.compareTo("carrito") == 0){
                         gs.setActualizaCarrito(true);
-                        Toast.makeText(getContext(), R.string.mensaje_agregar_carrito, Toast.LENGTH_SHORT).show();
+                        Snackbar.make(getView(), R.string.mensaje_agregar_carrito, Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
                     }
                 }
                 else{

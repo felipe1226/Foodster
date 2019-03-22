@@ -7,6 +7,17 @@
     android:layout_marginBottom="58dp"
     tools:context=".Persona.Carrito">
 
+    <Button
+        android:id="@+id/btnPedidos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:text="Pedidos"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"

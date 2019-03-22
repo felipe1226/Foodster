@@ -106,11 +106,7 @@ public class AdaptadorListaProductos extends RecyclerView.Adapter<AdaptadorLista
         if(producto.get(i).getPromocion() != 0){
             myViewHolder.tvPrecio.setPaintFlags( myViewHolder.tvPrecio.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
-            int precio = producto.get(i).getPrecio();
-            double descuento = producto.get(i).getDescuento();
-
-            int precioPromocion = (int)(precio - ( precio * (descuento/100)));
-            myViewHolder.tvPromocion.setText("$"+precioPromocion);
+            myViewHolder.tvPromocion.setText("$"+producto.get(i).getPromocion());
             myViewHolder.tvPromocion.setVisibility(View.VISIBLE);
         }
         String url = producto.get(i).getFoto1();

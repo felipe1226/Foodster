@@ -14,6 +14,7 @@ import android.widget.Button;
 
 import com.app.foodster.GlobalState;
 import com.app.foodster.R;
+import com.app.foodster.Splash;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -78,8 +79,10 @@ public class Cuenta extends Fragment {
                 SharedPreferences preferencesCuenta = getActivity().getSharedPreferences("cuenta", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editorCuenta = preferencesCuenta.edit();
                 editorCuenta.putString("session", "");
+                editorCuenta.commit();
 
                 getActivity().finish();
+
             }
         });
 

@@ -252,8 +252,6 @@ public class Empresas extends Fragment implements SwipeRefreshLayout.OnRefreshLi
                 rvEmpresas.setLayoutManager(new GridLayoutManager(getContext(), 1));
                 rvEmpresas.setAdapter(adaptadorEmpresas);
 
-                rvEmpresas.setScrollingTouchSlop(2);
-
                 gs.setDatosEmpresa(datosEmpresa);
                 gs.setCategorias(categorias);
                 gs.setFiltroCategorias(categorias);
