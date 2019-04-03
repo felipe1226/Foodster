@@ -2,6 +2,7 @@ package com.app.foodster.Persona;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,9 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.app.foodster.Empresa.SugerirEmpresa;
 import com.app.foodster.GlobalState;
 import com.app.foodster.R;
-import com.app.foodster.Splash;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,7 +29,9 @@ public class Cuenta extends Fragment {
     Button btnPerfil;
     Button btnDirecciones;
     Button btnFavoritos;
-    Button btnNotificaciones;
+    Button btnPedidos;
+    Button btnSugerir;
+    Button btnAjustes;
     Button btnSession;
 
     @Override
@@ -50,7 +53,8 @@ public class Cuenta extends Fragment {
         btnDirecciones.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                fragment = new MisDirecciones();
+                reemplazarFragment();
             }
         });
 
@@ -63,8 +67,26 @@ public class Cuenta extends Fragment {
             }
         });
 
-        btnNotificaciones = v.findViewById(R.id.btnNotificaciones);
-        btnNotificaciones.setOnClickListener(new View.OnClickListener() {
+        btnPedidos = v.findViewById(R.id.btnPedidos);
+        btnPedidos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fragment = new HistoricoPedidos();
+                reemplazarFragment();
+            }
+        });
+
+        btnSugerir = v.findViewById(R.id.btnSugerir);
+        btnSugerir.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), SugerirEmpresa.class);
+                startActivity(intent);
+            }
+        });
+
+        btnAjustes = v.findViewById(R.id.btnAjustes);
+        btnAjustes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -79,13 +101,12 @@ public class Cuenta extends Fragment {
                 SharedPreferences preferencesCuenta = getActivity().getSharedPreferences("cuenta", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editorCuenta = preferencesCuenta.edit();
                 editorCuenta.putString("session", "");
-                editorCuenta.commit();
+                editorCuenta.apply();
 
                 getActivity().finish();
 
             }
         });
-
 
         return v;
     }
@@ -95,6 +116,7 @@ public class Cuenta extends Fragment {
         super.onCreate(savedInstanceState);
 
         gs = (GlobalState) getActivity().getApplication();
+        gs.setFragment(this);
     }
 
     private void reemplazarFragment(){
@@ -105,8 +127,7 @@ public class Cuenta extends Fragment {
         getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .addToBackStack(null)
-                    .replace(R.id.fragment_container, fragment, fragment.getClass().toString()) // add and tag the new fragment
+                    .replace(R.id.fragment_container, fragment, fragment.getClass().toString()).addToBackStack(null) // add and tag the new fragment
                     .commit();
-
     }
 }

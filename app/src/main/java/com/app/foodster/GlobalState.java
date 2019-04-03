@@ -4,12 +4,19 @@ import android.app.Application;
 import android.support.v4.app.Fragment;
 
 import com.app.foodster.Empresa.DatosEmpresa;
+import com.app.foodster.Empresa.ListaEmpresasRecomendadas;
+import com.app.foodster.Empresa.ListaHorarios;
 import com.app.foodster.Persona.HiloPedidos;
 import com.app.foodster.Persona.ListaCarrito;
 import com.app.foodster.Persona.ListaDireccion;
 import com.app.foodster.Persona.ListaEmpresaCarrito;
+import com.app.foodster.Persona.ListaHistoricoPedidos;
+import com.app.foodster.Persona.ListaPedido;
+import com.app.foodster.Persona.ListaProductosHistorico;
+import com.app.foodster.Persona.ListaProductosPedido;
 import com.app.foodster.Persona.ListaProductosFavoritos;
 import com.app.foodster.Producto.ListaProductos;
+import com.app.foodster.Ubicacion.Localidad;
 
 import java.util.ArrayList;
 
@@ -17,15 +24,16 @@ public class GlobalState extends Application {
 
     public String ip = "foodster.com.co/consultasAndroid";
 
+    public String busqueda = "";
+
+    ArrayList<Localidad> localidades = new ArrayList<>();
+
+    public Principal principal = null;
     public HiloPedidos hiloPedidos = null;
 
     public Fragment fragment = null;
-    public Fragment fragmentEmpresas = null;
-    public Fragment fragmentCarrito = null;
 
     public String fragmentActual = null;
-    public String fragmentActualEmpresas = null;
-    public String fragmentActualCarritos = null;
 
     public String usuario = "";
     public String password = "";
@@ -34,22 +42,35 @@ public class GlobalState extends Application {
     public String nombre = "";
     public String telefono = "";
     public String email = "";
-    public int idCiudad = 0;
+    public String departamento = "";
+    public String ciudad = "";
 
     public boolean existePedidos = false;
     public boolean actualizaEmpresas = true;
     public boolean actualizaCarrito =  true;
+    public boolean actualizaPedido =  true;
+    public boolean actualizaHistorico =  true;
     public boolean actualizaProductosFavoritos =  true;
     public boolean actualizaDirecciones =  true;
 
+    ArrayList<ListaEmpresasRecomendadas> datosRecomendadas = new ArrayList<>();
     ArrayList<DatosEmpresa> datosEmpresa = null;
+    ArrayList<ListaHorarios> datosHorarios = new ArrayList<>();
     ArrayList<ListaProductos> datosProducto = new ArrayList<>();
+
     ArrayList<ListaEmpresaCarrito> datosEmpresaCarrito = null;
     ArrayList<ListaCarrito> datosCarrito = null;
+
+    ArrayList<ListaPedido> datosPedido = null;
+    ArrayList<ListaProductosPedido> datosProductoPedido = null;
+
+    ArrayList<ListaHistoricoPedidos> datosHistorico = null;
+    ArrayList<ListaProductosHistorico> datosProductoHistorico = null;
+
     ArrayList<ListaDireccion> datosDireccion = null;
     ArrayList<ListaProductosFavoritos> datosProductosFavoritos = null;
     ArrayList<String> categorias = null;
-    ArrayList<String> filtroCategorias = null;
+    public ArrayList<String> filtroCategorias = null;
 
 
     public String getIp() {
@@ -58,6 +79,30 @@ public class GlobalState extends Application {
 
     public void setIp(String ip) {
         this.ip = ip;
+    }
+
+    public String getBusqueda() {
+        return busqueda;
+    }
+
+    public void setBusqueda(String busqueda) {
+        this.busqueda = busqueda;
+    }
+
+    public ArrayList<Localidad> getLocalidades() {
+        return localidades;
+    }
+
+    public void setLocalidades(ArrayList<Localidad> localidades) {
+        this.localidades = localidades;
+    }
+
+    public Principal getPrincipal() {
+        return principal;
+    }
+
+    public void setPrincipal(Principal principal) {
+        this.principal = principal;
     }
 
     public HiloPedidos getHiloPedidos() {
@@ -76,44 +121,12 @@ public class GlobalState extends Application {
         this.fragment = fragment;
     }
 
-    public Fragment getFragmentEmpresas() {
-        return fragmentEmpresas;
-    }
-
-    public void setFragmentEmpresas(Fragment fragmentEmpresas) {
-        this.fragmentEmpresas = fragmentEmpresas;
-    }
-
-    public Fragment getFragmentCarrito() {
-        return fragmentCarrito;
-    }
-
-    public void setFragmentCarrito(Fragment fragmentCarrito) {
-        this.fragmentCarrito = fragmentCarrito;
-    }
-
-    public String getFragmentActualEmpresas() {
-        return fragmentActualEmpresas;
-    }
-
     public String getFragmentActual() {
         return fragmentActual;
     }
 
     public void setFragmentActual(String fragmentActual) {
         this.fragmentActual = fragmentActual;
-    }
-
-    public void setFragmentActualEmpresas(String fragmentActualEmpresas) {
-        this.fragmentActualEmpresas = fragmentActualEmpresas;
-    }
-
-    public String getFragmentActualCarritos() {
-        return fragmentActualCarritos;
-    }
-
-    public void setFragmentActualCarritos(String fragmentActualCarritos) {
-        this.fragmentActualCarritos = fragmentActualCarritos;
     }
 
     public String getUsuario() {
@@ -164,23 +177,21 @@ public class GlobalState extends Application {
         this.email = email;
     }
 
-    public int getidCiudad() {
-        return idCiudad;
+    public String getDepartamento() {
+        return departamento;
     }
 
-    public void setidCiudad(int idCiudad) {
-        this.idCiudad = idCiudad;
+    public void setDepartamento(String departamento) {
+        this.departamento = departamento;
     }
 
-
-    public int getIdCiudad() {
-        return idCiudad;
+    public String getCiudad() {
+        return ciudad;
     }
 
-    public void setIdCiudad(int idCiudad) {
-        this.idCiudad = idCiudad;
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
     }
-
 
     public boolean isExistePedidos() {
         return existePedidos;
@@ -206,6 +217,22 @@ public class GlobalState extends Application {
         this.actualizaCarrito = actualizaCarrito;
     }
 
+    public boolean isActualizaPedido() {
+        return actualizaPedido;
+    }
+
+    public void setActualizaPedido(boolean actualizaPedido) {
+        this.actualizaPedido = actualizaPedido;
+    }
+
+    public boolean isActualizaHistorico() {
+        return actualizaHistorico;
+    }
+
+    public void setActualizaHistorico(boolean actualizaHistorico) {
+        this.actualizaHistorico = actualizaHistorico;
+    }
+
     public boolean isActualizaDirecciones() {
         return actualizaDirecciones;
     }
@@ -222,12 +249,34 @@ public class GlobalState extends Application {
         this.actualizaProductosFavoritos = actualizaProductosFavoritos;
     }
 
+    public ArrayList<ListaEmpresasRecomendadas> getDatosRecomendadas() {
+        return datosRecomendadas;
+    }
+
+    public void setDatosRecomendadas(ArrayList<ListaEmpresasRecomendadas> datosRecomendadas) {
+        this.datosRecomendadas = datosRecomendadas;
+    }
+
     public ArrayList<DatosEmpresa> getDatosEmpresa() {
         return datosEmpresa;
     }
 
     public void setDatosEmpresa(ArrayList<DatosEmpresa> datosEmpresa) {
         this.datosEmpresa = datosEmpresa;
+    }
+
+    public ArrayList<ListaHorarios> getDatosHorarios() {
+        return datosHorarios;
+    }
+
+    public void setDatosHorarios(ArrayList<ListaHorarios> datosHorarios) {
+        this.datosHorarios = datosHorarios;
+    }
+
+    public void addDatosHorarios(ArrayList<ListaHorarios> datosHorarios) {
+        for(int i=0;i<datosHorarios.size();i++){
+            this.datosHorarios.add(datosHorarios.get(i));
+        }
     }
 
     public ArrayList<ListaProductos> getDatosProducto() {
@@ -258,6 +307,38 @@ public class GlobalState extends Application {
 
     public void setDatosCarrito(ArrayList<ListaCarrito> datosCarrito) {
         this.datosCarrito = datosCarrito;
+    }
+
+    public ArrayList<ListaPedido> getDatosPedido() {
+        return datosPedido;
+    }
+
+    public void setDatosPedido(ArrayList<ListaPedido> datosPedido) {
+        this.datosPedido = datosPedido;
+    }
+
+    public ArrayList<ListaProductosPedido> getDatosProductoPedido() {
+        return datosProductoPedido;
+    }
+
+    public void setDatosProductoPedido(ArrayList<ListaProductosPedido> datosProductoPedido) {
+        this.datosProductoPedido = datosProductoPedido;
+    }
+
+    public ArrayList<ListaHistoricoPedidos> getDatosHistorico() {
+        return datosHistorico;
+    }
+
+    public void setDatosHistorico(ArrayList<ListaHistoricoPedidos> datosHistorico) {
+        this.datosHistorico = datosHistorico;
+    }
+
+    public ArrayList<ListaProductosHistorico> getDatosProductoHistorico() {
+        return datosProductoHistorico;
+    }
+
+    public void setDatosProductoHistorico(ArrayList<ListaProductosHistorico> datosProductoHistorico) {
+        this.datosProductoHistorico = datosProductoHistorico;
     }
 
     public ArrayList<ListaDireccion> getDatosDireccion() {

@@ -8,12 +8,13 @@
         android:title="@string/text_buscar"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/action_ajustes"
-        android:title="Ajustes" />
-    <item
-        android:id="@+id/action_ordenar"
-        android:title="Ordenar por" />
 
+    <item
+        android:id="@+id/action_buscar"
+        android:title="Buscar por" />
+
+    <item
+        android:id="@+id/action_filtrar"
+        android:title="Filtrar" />
 
 </menu>

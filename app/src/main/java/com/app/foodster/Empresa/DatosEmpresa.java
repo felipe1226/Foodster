@@ -11,17 +11,17 @@ public class DatosEmpresa {
     String nombre_sucursal;
     String banner;
     String descripcion;
-    int metodo_pago;
     String direccion;
     String ubicacion;
     String telefono;
     String movil;
     String ciudad;
-
+    int domicilio;
+    int pago;
 
     public DatosEmpresa(int id, String tipo, String categoria, String logo, String nombre, int sucursal,
-                        String nombre_sucursal, String banner, String descripcion, int metodo_pago, String direccion, String ubicacion,
-                        String telefono, String movil, String ciudad) {
+                        String nombre_sucursal, String banner, String descripcion, String direccion, String ubicacion,
+                        String telefono, String movil, String ciudad, int domicilio, int pago) {
         this.id = id;
         this.tipo = tipo;
         this.categoria = categoria;
@@ -31,12 +31,13 @@ public class DatosEmpresa {
         this.nombre_sucursal = nombre_sucursal;
         this.banner = banner;
         this.descripcion = descripcion;
-        this.metodo_pago = metodo_pago;
         this.direccion = direccion;
         this.ubicacion = ubicacion;
         this.telefono = telefono;
         this.movil = movil;
         this.ciudad = ciudad;
+        this.domicilio = domicilio;
+        this.pago = pago;
     }
 
     public int getId() {
@@ -111,14 +112,6 @@ public class DatosEmpresa {
         this.descripcion = descripcion;
     }
 
-    public int getMetodo_pago() {
-        return metodo_pago;
-    }
-
-    public void setMetodo_pago(int metodo_pago) {
-        this.metodo_pago = metodo_pago;
-    }
-
     public String getDireccion() {
         return direccion;
     }
@@ -157,5 +150,21 @@ public class DatosEmpresa {
 
     public void setCiudad(String ciudad) {
         this.ciudad = ciudad;
+    }
+
+    public int getDomicilio() {
+        return domicilio;
+    }
+
+    public void setDomicilio(int domicilio) {
+        this.domicilio = domicilio;
+    }
+
+    public int getPago() {
+        return pago;
+    }
+
+    public void setPago(int pago) {
+        this.pago = pago;
     }
 }

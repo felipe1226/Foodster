@@ -81,7 +81,6 @@ public class AdaptadorListaProductos extends RecyclerView.Adapter<AdaptadorLista
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
 
                 fragInformacionProducto fragment = new fragInformacionProducto();
-                gs.setFragmentEmpresas(fragment);
                 gs.setFragment(fragment);
                 gs.setFragmentActual("InformacionProducto");
                 fragment.setArguments(args);
@@ -90,7 +89,7 @@ public class AdaptadorListaProductos extends RecyclerView.Adapter<AdaptadorLista
                 activity.getSupportFragmentManager()
                             .beginTransaction()
                             .addToBackStack(null)
-                            .replace(R.id.fragment_container, fragment, fragment.getClass().toString()) // add and tag the new fragment
+                            .replace(R.id.fragment_container, fragment, fragment.getClass().toString()).addToBackStack(null) // add and tag the new fragment
                             .commit();
             }
         });

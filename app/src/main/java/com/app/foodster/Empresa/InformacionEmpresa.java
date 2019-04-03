@@ -50,7 +50,7 @@ public class InformacionEmpresa extends AppCompatActivity implements OnMapReadyC
     ArrayList<DatosEmpresa> datosEmpresa;
 
     private ArrayList<ListaHorarios> listaHorarios;
-    private AdaptadorListaHorarios adaptadorListaHorarios;
+    private AdaptadorHorarios adaptadorHorarios;
     boolean suscripcion;
 
     private ArrayList<ListaCartas> listaCartas;
@@ -287,14 +287,14 @@ public class InformacionEmpresa extends AppCompatActivity implements OnMapReadyC
                             String cierre = (jsonObject.optString("hora_cierre"));
                             int estado = (jsonObject.optInt("estado"));
 
-                            listaHorarios.add(new ListaHorarios(dia, apertura, cierre, estado));
+                            listaHorarios.add(new ListaHorarios(idEmpresa, dia, apertura, cierre, estado));
                         }
 
                         tvHorarios.setVisibility(View.VISIBLE);
 
-                        adaptadorListaHorarios = new AdaptadorListaHorarios(this, listaHorarios);
+                        adaptadorHorarios = new AdaptadorHorarios(this, listaHorarios);
                         rvHorarios.setLayoutManager(new GridLayoutManager(this, 1));
-                        rvHorarios.setAdapter(adaptadorListaHorarios);
+                        rvHorarios.setAdapter(adaptadorHorarios);
                     }
 
                     if(consulta.compareTo("carta") == 0) {

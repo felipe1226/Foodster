@@ -11,7 +11,6 @@ import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.GridLayoutManager;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.util.Log;
@@ -25,10 +24,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.app.foodster.Empresa.AdaptadorListaEmpresas;
 import com.app.foodster.Empresa.DatosEmpresa;
-import com.app.foodster.Empresa.ListaEmpresas;
 import com.app.foodster.Persona.HiloPedidos;
+import com.app.foodster.Ubicacion.Localidad;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +38,6 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
 
     GlobalState gs;
 
-
     String consulta;
 
     int idUsuario;
@@ -50,8 +47,6 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
 
     private ArrayList<DatosEmpresa> datosEmpresa;
     ArrayList<String> categorias;
-
-    int cargar;
 
     RequestQueue request;
     JsonObjectRequest jsonObjectRequest;
@@ -66,7 +61,6 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
         setContentView(R.layout.activity_splash);
 
         gs = (GlobalState)getApplication();
-
         request = Volley.newRequestQueue(getApplicationContext());
 
     }
@@ -146,6 +140,17 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
         request.add(jsonObjectRequest);
     }
 
+    private void listarCiudades(){
+        consulta = "ciudad";
+
+        String url = "http://" + gs.getIp() + "/Ubicacion/listar_ciudades.php";
+
+        url = url.replace(" ", "%20");
+
+        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
+        request.add(jsonObjectRequest);
+    }
+
     private void listarEmpresas(){
         consulta = "empresa";
 
@@ -157,11 +162,42 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
         request.add(jsonObjectRequest);
     }
 
+    private void accionConsulta(boolean existePedidos){
+        switch (consulta){
+            case "ciudad" : verificarPreferencias(); break;
+
+            case "usuario" : obtenerDatos(); break;
+
+            case "persona" : consultarPedidos(); break;
+
+            case "pedido" : if(existePedidos){
+                                listarEmpresas();
+                                gs.setExistePedidos(true);
+                                HiloPedidos hiloPedidos = new HiloPedidos(getApplicationContext(), gs);
+                                hiloPedidos.execute();
+                                gs.setHiloPedidos(hiloPedidos);
+                            }
+                            else{
+                                gs.setActualizaEmpresas(true);
+                                cargar(2);
+                            }
+                            break;
+
+            case "empresa" : gs.setActualizaEmpresas(true);
+                            cargar(2);
+                            break;
+        }
+    }
+
     @Override
     protected void onPostResume() {
         super.onPostResume();
-
-        verificarPreferencias();
+        if(gs.getLocalidades().size() == 0){
+            listarCiudades();
+        }
+        else{
+            verificarPreferencias();
+        }
     }
 
     @Override
@@ -175,6 +211,18 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
         try {
             jsonObject = datos.getJSONObject(0);
             if(jsonObject.optString("id").compareTo("0") != 0) {
+                if(consulta.compareTo("ciudad") == 0){
+                    ArrayList<Localidad> localidad = new ArrayList<>();
+                    for (int i = 0; i < datos.length(); i++) {
+                        jsonObject = datos.getJSONObject(i);
+                        localidad.add(new Localidad(jsonObject.optInt("idDepartamento"),
+                                jsonObject.optString("departamento"),
+                                jsonObject.optInt("id"),
+                                jsonObject.optString("ciudad")));
+                    }
+                    gs.setLocalidades(localidad);
+                }
+
                 if(consulta.compareTo("usuario") == 0){
                     idUsuario = jsonObject.optInt("id");
                     if(idUsuario != 0){
@@ -191,7 +239,8 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
                     gs.setNombre(jsonObject.optString("nombre"));
                     gs.setTelefono(jsonObject.optString("telefono"));
                     gs.setEmail(jsonObject.optString("email"));
-                    gs.setidCiudad(jsonObject.optInt("id_ciudad"));
+                    gs.setDepartamento(jsonObject.optString("departamento"));
+                    gs.setCiudad(jsonObject.optString("ciudad"));
                 }
                 if(consulta.compareTo("pedido") == 0){
                     existePedidos = true;
@@ -213,12 +262,13 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
                                 jsonObject.optString("nombre_sucursal"),
                                 jsonObject.optString("banner"),
                                 jsonObject.optString("descripcion"),
-                                jsonObject.optInt("metodo_pago"),
                                 jsonObject.optString("direccion"),
                                 jsonObject.optString("ubicacion"),
                                 jsonObject.optString("telefono"),
                                 jsonObject.optString("movil"),
-                                jsonObject.optString("ciudad")));
+                                jsonObject.optString("ciudad"),
+                                jsonObject.optInt("domicilio"),
+                                jsonObject.optInt("pagos_online")));
 
                         if(i == 0){
                             categorias.add(categoria);
@@ -245,35 +295,7 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
             e.printStackTrace();
         }
 
-        gs.setActualizaEmpresas(true);
-        if(consulta.compareTo("usuario") == 0){
-            obtenerDatos();
-        }
-        else{
-            if(consulta.compareTo("persona") == 0){
-                consultarPedidos();
-                //cargar(2);
-            }
-            else{
-                if(consulta.compareTo("pedido") == 0){
-                    if(existePedidos){
-                        listarEmpresas();
-                        gs.setExistePedidos(true);
-                        HiloPedidos hiloPedidos = new HiloPedidos(getApplicationContext(), findViewById(android.R.id.content), gs);
-                        hiloPedidos.execute();
-                        gs.setHiloPedidos(hiloPedidos);
-                    }
-                    else{
-                        cargar(2);
-                    }
-                }
-                else{
-                    if(consulta.compareTo("empresa") == 0){
-                        cargar(2);
-                    }
-                }
-            }
-        }
+        accionConsulta(existePedidos);
     }
 
     @Override

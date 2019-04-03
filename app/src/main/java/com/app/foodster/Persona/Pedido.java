@@ -1,13 +1,11 @@
 package com.app.foodster.Persona;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -32,8 +31,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import static java.lang.Thread.sleep;
-
 public class Pedido extends Fragment implements Response.Listener<JSONObject>, Response.ErrorListener{
 
     String consulta;
@@ -42,17 +39,16 @@ public class Pedido extends Fragment implements Response.Listener<JSONObject>, R
 
     ProgressBar progress;
 
+    TextView tvMensaje;
     RecyclerView rvPedidos;
 
     ArrayList<ListaPedido> listaPedido;
-    AdaptadorListaPedidos adaptadorListaPedidos;
+    AdaptadorPedidos adaptadorPedidos;
 
-    ArrayList<ListaProductoPedido> listaProductoPedido;
-    AdaptadorProductoPedido adaptadorProductoPedido;
+    ArrayList<ListaProductosPedido> listaProductosPedido;
 
     HiloPedidos hiloPedidos = null;
-    HiloEstados hiloEstados = null;
-
+    boolean listar;
 
     RequestQueue request;
     JsonObjectRequest jsonObjectRequest;
@@ -66,10 +62,10 @@ public class Pedido extends Fragment implements Response.Listener<JSONObject>, R
 
         progress = v.findViewById(R.id.progressBar);
 
+        tvMensaje = v.findViewById(R.id.tvMensaje);
         rvPedidos = v.findViewById(R.id.rvPedidos);
 
-        listarPedidos();
-
+        verificarPedidos();
 
         return v;
     }
@@ -78,27 +74,76 @@ public class Pedido extends Fragment implements Response.Listener<JSONObject>, R
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gs = (GlobalState)getActivity().getApplication();
+        gs.setFragment(this);
 
         request = Volley.newRequestQueue(getActivity().getApplicationContext());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         if(gs.getHiloPedidos() != null){
             hiloPedidos = gs.getHiloPedidos();
-            hiloEstados = new HiloEstados();
-            hiloEstados.execute();
+            FragmentManager fm = getFragmentManager();
+            Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
+            hiloPedidos.setFragment(currentFragment);
+        }
+        if(gs.isActualizaPedido() && listar){
+            listaPedido = gs.getDatosPedido();
+            generarPedidos();
+        }
+    }
+
+    private void verificarPedidos(){
+        if(!gs.isActualizaPedido()){
+            listar = false;
+            if(gs.getDatosPedido() != null && gs.getDatosPedido().size() > 0){
+
+                listaPedido = gs.getDatosPedido();
+                listaProductosPedido = gs.getDatosProductoPedido();
+
+                generarPedidos();
+            }
+            else{
+                rvPedidos.setVisibility(View.GONE);
+                tvMensaje.setVisibility(View.VISIBLE);
+                progress.setVisibility(View.GONE);
+            }
+        }
+        else{
+            if(!listar){
+                gs.setActualizaPedido(false);
+                listar = true;
+                listarPedidos();
+            }
         }
     }
 
     private void generarPedidos(){
-        adaptadorListaPedidos = new AdaptadorListaPedidos(getContext(), listaPedido, listaProductoPedido);
+
+        adaptadorPedidos = new AdaptadorPedidos(this,getContext(), listaPedido, listaProductosPedido);
         rvPedidos.setLayoutManager(new GridLayoutManager(getContext(), 1));
-        rvPedidos.setAdapter(adaptadorListaPedidos);
+        rvPedidos.setAdapter(adaptadorPedidos);
+
+        rvPedidos.setVisibility(View.VISIBLE);
+        tvMensaje.setVisibility(View.GONE);
+        progress.setVisibility(View.GONE);
     }
-
-
 
     public void listarPedidos(){
         consulta = "pedido";
         String url = "http://" + gs.getIp() + "/Persona/listar_pedidos.php?idPersona="+gs.getIdPersona();
+
+        url = url.replace(" ", "%20");
+
+        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
+        request.add(jsonObjectRequest);
+    }
+
+    public void confirmarRecibido(int idPedido){
+        consulta = "recibido";
+        String url = "http://" + gs.getIp() + "/Persona/confirmar_recibido.php?idPedido="+idPedido;
 
         url = url.replace(" ", "%20");
 
@@ -118,7 +163,7 @@ public class Pedido extends Fragment implements Response.Listener<JSONObject>, R
                 if(consulta.compareTo("pedido") == 0){
 
                     listaPedido = new ArrayList<>();
-                    listaProductoPedido = new ArrayList<>();
+                    listaProductosPedido = new ArrayList<>();
 
                     int idAnterior = 0;
 
@@ -137,19 +182,44 @@ public class Pedido extends Fragment implements Response.Listener<JSONObject>, R
                                                             jsonObject.optInt("costo")));
                         }
 
-                        listaProductoPedido.add(new ListaProductoPedido(jsonObject.optInt("idProducto"),
+                        listaProductosPedido.add(new ListaProductosPedido(jsonObject.optInt("idProducto"),
                                                     jsonObject.optInt("id_pedido"),
                                                     jsonObject.optString("nombre"),
                                                     jsonObject.optInt("precio"),
+                                                    jsonObject.optInt("promocion"),
                                                     jsonObject.optString("detalles")));
                     }
                     generarPedidos();
-                    progress.setVisibility(View.GONE);
+
+                    gs.setDatosPedido(listaPedido);
+                    gs.setDatosProductoPedido(listaProductosPedido);
+
+
+                }
+                if(consulta.compareTo("recibido") == 0){
+                    jsonObject = datos.getJSONObject(0);
+                    for(int j=0;j<listaPedido.size();j++){
+                        if( jsonObject.optInt("id")== listaPedido.get(j).getId()){
+                            listaPedido.remove(j);
+                            break;
+                        }
+                    }
+                    gs.setActualizaHistorico(true);
+                    adaptadorPedidos.actualizar(listaPedido);
+                    if(listaPedido.size() == 0){
+                        hiloPedidos.setExistePedido(false);
+                        rvPedidos.setVisibility(View.GONE);
+                        tvMensaje.setVisibility(View.VISIBLE);
+                        progress.setVisibility(View.GONE);
+                    }
                 }
             }
             else{
                 if(consulta.compareTo("pedido") == 0){
                     gs.setExistePedidos(false);
+                    progress.setVisibility(View.GONE);
+                    rvPedidos.setVisibility(View.GONE);
+                    tvMensaje.setVisibility(View.VISIBLE);
                 }
             }
         } catch (JSONException e) {
@@ -164,58 +234,24 @@ public class Pedido extends Fragment implements Response.Listener<JSONObject>, R
             Toast.makeText(getContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
         }
         else{
-            Toast.makeText(getContext(), "Error de login "+ error.toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Error "+ error.toString(), Toast.LENGTH_SHORT).show();
         }
         Log.i("ERROR", error.toString());
     }
 
-    private class HiloEstados extends AsyncTask<Void, Integer, Boolean> {
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
+    @Override
+    public void onStop() {
+        super.onStop();
+        if(gs.getHiloPedidos() != null){
+            hiloPedidos.setFragment(null);
         }
+    }
 
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            Toast.makeText(getContext(),"prueba", Toast.LENGTH_SHORT).show();
-            try {
-                while (gs.getHiloPedidos() != null) {
-                    sleep(5000);
-                    if (hiloPedidos.isCambioEstado()) {
-                        listarPedidos();
-                        Toast.makeText(getContext(), "Pedidos actualizados", Toast.LENGTH_SHORT).show();
-                    }
-                    Toast.makeText(getContext(), "No actualiza", Toast.LENGTH_LONG).show();
-                }
-                onCancelled();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            return true;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-        }
-
-        @TargetApi(Build.VERSION_CODES.N)
-        @RequiresApi(api = Build.VERSION_CODES.N)
-        @Override
-        protected void onPostExecute(Boolean resultado) {
-            super.onPostExecute(resultado);
-            if(resultado){
-                Toast.makeText(getContext(), "Hilo creado", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            super.onCancelled();
-            hiloPedidos = null;
-            hiloEstados = null;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(gs.getHiloPedidos() != null){
+            hiloPedidos.setFragment(null);
         }
     }
 }

@@ -6,39 +6,42 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.foodster.R;
 
 import java.util.ArrayList;
 
-public class AdaptadorProductoPedido extends RecyclerView.Adapter<AdaptadorProductoPedido.MyViewHolder> {
+public class AdaptadorProductosPedido extends RecyclerView.Adapter<AdaptadorProductosPedido.MyViewHolder> {
 
     Context context;
-    ArrayList<ListaProductoPedido> producto;
+    ArrayList<ListaProductosPedido> producto;
 
-    public AdaptadorProductoPedido(Context context, ArrayList<ListaProductoPedido> producto) {
+    public AdaptadorProductosPedido(Context context, ArrayList<ListaProductosPedido> producto) {
         this.context = context;
         this.producto = producto;
     }
 
     @NonNull
     @Override
-    public AdaptadorProductoPedido.MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public AdaptadorProductosPedido.MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v;
         v = LayoutInflater.from(context).inflate(R.layout.item_producto_pedido,viewGroup,false);
-        final AdaptadorProductoPedido.MyViewHolder holder = new AdaptadorProductoPedido.MyViewHolder(v);
+        final AdaptadorProductosPedido.MyViewHolder holder = new AdaptadorProductosPedido.MyViewHolder(v);
 
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AdaptadorProductoPedido.MyViewHolder myViewHolder, int i) {
+    public void onBindViewHolder(@NonNull AdaptadorProductosPedido.MyViewHolder myViewHolder, int i) {
         myViewHolder.tvNombre.setText(producto.get(i).getNombre());
-        myViewHolder.tvPrecio.setText(String.valueOf(producto.get(i).getPrecio()));
+        if(producto.get(i).getPromocion() == 0){
+            myViewHolder.tvPrecio.setText(String.valueOf(producto.get(i).getPrecio()));
+        }
+        else{
+            myViewHolder.tvPrecio.setText(String.valueOf(producto.get(i).getPromocion()));
+        }
+
         myViewHolder.tvDetalles.setText(producto.get(i).getDetalles());
     }
 

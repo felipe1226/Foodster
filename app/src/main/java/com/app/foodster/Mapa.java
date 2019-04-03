@@ -84,6 +84,7 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
         mapView.onCreate(savedInstanceState);
         mapView.onResume();
         mapView.getMapAsync(this);
+
         return v;
     }
 
@@ -91,11 +92,15 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
         super.onCreate(savedInstanceState);
 
         gs = (GlobalState) getActivity().getApplication();
+        gs.setFragment(this);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
+
+        googleMap.setMinZoomPreference(5);
+        googleMap.setMaxZoomPreference(16);
 
         inicializarMapa();
     }
@@ -104,6 +109,8 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
 
         googleMap.getUiSettings().setZoomControlsEnabled(true);
 
+        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+
         generarMarcadores();
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -111,8 +118,6 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
         }
 
         googleMap.setMyLocationEnabled(true);
-
-        locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
 
         googleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
@@ -164,9 +169,9 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
         }
 
         LatLng ciudad = new LatLng(4.0864458, -76.1971384);
-        googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.getUiSettings().setMapToolbarEnabled(true);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ciudad, 14));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(13), 1500, null);
+        //googleMap.animateCamera(CameraUpdateFactory.zoomTo(13), 1500, null);
 
         googleMap.setOnMyLocationClickListener(new GoogleMap.OnMyLocationClickListener() {
             @Override
@@ -214,7 +219,6 @@ public class Mapa extends Fragment implements OnMapReadyCallback {
         AppCompatActivity activity = (AppCompatActivity) getContext();
 
         fragInformacionEmpresa fragment = new fragInformacionEmpresa();
-        gs.setFragmentEmpresas(fragment);
         gs.setFragment(fragment);
         gs.setFragmentActual("InformacionEmpresas");
         fragment.setArguments(args);

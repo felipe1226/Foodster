@@ -15,8 +15,10 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.452">
 
         <android.support.design.widget.TextInputLayout
             android:id="@+id/textInputLayout"
@@ -67,21 +69,21 @@
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="12dp"
             android:layout_weight="1"
             android:text="@string/button_iniciar"
             android:textColor="@android:color/background_light"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="40dp"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -109,7 +111,7 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <CheckBox
+        <!--<CheckBox
             android:id="@+id/cbRecordar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -130,6 +132,26 @@
             android:text="@string/check_session"
             android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cbRecordar" />-->
+
+        <Switch
+            android:id="@+id/cbRecordar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="16dp"
+            android:text="Recordar cuenta"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
+
+        <Switch
+            android:id="@+id/cbSession"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="Mantener sesion"
+            app:layout_constraintEnd_toEndOf="@+id/cbRecordar"
             app:layout_constraintTop_toBottomOf="@+id/cbRecordar" />
     </android.support.constraint.ConstraintLayout>
 

@@ -5,18 +5,16 @@ import android.graphics.Bitmap;
 public class ListaEmpresas {
 
     private int id;
-    private Bitmap foto;
+    private String foto;
+    private Bitmap bFoto;
     private String nombre;
+    private String categoria;
 
-    public ListaEmpresas(int id, Bitmap foto, String nombre) {
+    public ListaEmpresas(int id, String foto, String nombre, String categoria) {
         this.id = id;
         this.foto = foto;
         this.nombre = nombre;
-    }
-
-    public ListaEmpresas(int id, String nombre) {
-        this.id = id;
-        this.nombre = nombre;
+        this.categoria = categoria;
     }
 
     public int getId() {
@@ -27,12 +25,20 @@ public class ListaEmpresas {
         this.id = id;
     }
 
-    public Bitmap getFoto() {
+    public String getFoto() {
         return foto;
     }
 
-    public void setFoto(Bitmap foto) {
+    public void setFoto(String foto) {
         this.foto = foto;
+    }
+
+    public Bitmap getbFoto() {
+        return bFoto;
+    }
+
+    public void setbFoto(Bitmap bFoto) {
+        this.bFoto = bFoto;
     }
 
     public String getNombre() {
@@ -41,5 +47,13 @@ public class ListaEmpresas {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 }

@@ -72,16 +72,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/text_efectivo"
-                    android:visibility="gone" />
+                    android:text="@string/text_efectivo" />
 
                 <RadioButton
                     android:id="@+id/rbTarjeta"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/text_tarjeta"
-                    android:visibility="gone" />
+                    android:text="@string/text_tarjeta" />
             </RadioGroup>
 
             <LinearLayout
@@ -129,6 +127,16 @@
                         android:layout_weight="1"
                         android:ems="10"
                         android:inputType="number" />
+
+                    <TextView
+                        android:id="@+id/tvMensaje"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_weight="1"
+                        android:text="Efectivo insuficiente"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 

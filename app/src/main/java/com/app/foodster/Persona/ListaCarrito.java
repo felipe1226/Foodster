@@ -7,18 +7,22 @@ public class ListaCarrito {
     private int idProducto;
     private int idEmpresa;
     private String empresa;
+    private int cant;
     private String nombre;
     private int precio;
+    private int cantPrecio;
     private int promocion;
+    private int cantPromocion;
     private int descuento;
     private String detalles;
 
-    public ListaCarrito(int idCarrito, int idProducto, int idEmpresa, String empresa, String nombre, int precio, int promocion,
+    public ListaCarrito(int idCarrito, int idProducto, int idEmpresa, String empresa, int cant, String nombre, int precio, int promocion,
                         int descuento, String detalles) {
         this.idCarrito = idCarrito;
         this.idProducto = idProducto;
         this.idEmpresa = idEmpresa;
         this.empresa = empresa;
+        this.cant = cant;
         this.nombre = nombre;
         this.precio = precio;
         this.promocion = promocion;
@@ -56,6 +60,14 @@ public class ListaCarrito {
 
     public void setEmpresa(String empresa) {
         this.empresa = empresa;
+    }
+
+    public int getCant() {
+        return cant;
+    }
+
+    public void setCant(int cant) {
+        this.cant = cant;
     }
 
     public String getNombre() {
@@ -96,5 +108,21 @@ public class ListaCarrito {
 
     public void setDetalles(String detalles) {
         this.detalles = detalles;
+    }
+
+    public int getCantPrecio() {
+        return cantPrecio;
+    }
+
+    public void setCantPrecio(int cantPrecio) {
+        this.cantPrecio = cantPrecio;
+    }
+
+    public int getCantPromocion() {
+        return cantPromocion;
+    }
+
+    public void setCantPromocion(int cantPromocion) {
+        this.cantPromocion = cantPromocion;
     }
 }

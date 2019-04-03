@@ -2,12 +2,11 @@ package com.app.foodster.Empresa;
 
 
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
+import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,22 +17,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.app.foodster.GlobalState;
 import com.app.foodster.Producto.AdaptadorListaCartas;
-import com.app.foodster.Producto.AdaptadorListaProductos;
 import com.app.foodster.Producto.ListaCartas;
 import com.app.foodster.Producto.ListaProductos;
 import com.app.foodster.R;
@@ -43,7 +40,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,8 +59,10 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
     int idEmpresa;
     ArrayList<DatosEmpresa> datosEmpresa;
 
+    ArrayList<ListaHorarios> datosHorarios;
+
     private ArrayList<ListaHorarios> listaHorarios;
-    private AdaptadorListaHorarios adaptadorListaHorarios;
+    private AdaptadorHorarios adaptadorHorarios;
     boolean suscripcion;
 
     private ArrayList<ListaCartas> listaCartas;
@@ -107,6 +105,11 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
 
         View v = inflater.inflate(R.layout.fragment_frag_informacion_empresa, container, false);
 
+        Toolbar toolbar = v.findViewById(R.id.toolbar);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
+        //activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         btnRegresar = (ImageButton) v.findViewById(R.id.btnRegresar);
 
         btnRegresar.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +120,7 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
         });
 
         datosEmpresa = gs.getDatosEmpresa();
+        datosHorarios = gs.getDatosHorarios();
 
         progressBar = v.findViewById(R.id.progressBar);
 
@@ -157,17 +161,16 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
 
         rvCartas = v.findViewById(R.id.rvCartas);
 
-
-
         mostrarInformacion();
+        mostrarHorarios();
 
-        mapView = (MapView) v.findViewById(R.id.mapView);
+        mapView = v.findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.onResume();
         mapView.getMapAsync(this);
 
         suscripcion = false;
-        consultarSuscripcion();
+
         return v;
     }
 
@@ -175,7 +178,6 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
 
         gs = (GlobalState) getActivity().getApplication();
-
         request = Volley.newRequestQueue(getActivity().getApplicationContext());
 
         idEmpresa = getArguments().getInt("idEmpresa");
@@ -219,16 +221,41 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
         }
     }
 
+    private void mostrarHorarios() {
+        boolean existeHorarios = false;
+        listaHorarios = new ArrayList<>();
+        for(int i=0;i<datosHorarios.size();i++){
+            if(datosHorarios.get(i).getIdEmpresa() == idEmpresa){
+                listaHorarios.add(datosHorarios.get(i));
+                existeHorarios = true;
+            }
+        }
+
+        if(!existeHorarios){
+            consultarHorarios();
+        }
+        else{
+            generarHorarios();
+            consultarSuscripcion();
+        }
+    }
+
+    private void generarHorarios(){
+        tvHorarios.setVisibility(View.VISIBLE);
+
+        adaptadorHorarios = new AdaptadorHorarios(getContext(), listaHorarios);
+        rvHorarios.setLayoutManager(new GridLayoutManager(getContext(), 1));
+        rvHorarios.setAdapter(adaptadorHorarios);
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
 
-        LatLng coordenadas = null;
-
         String ubicacion[];
 
         ubicacion = datosEmpresa.get(ind).getUbicacion().split(",");
-        coordenadas = new LatLng(Double.parseDouble(ubicacion[0]), Double.parseDouble(ubicacion[1]));
+        LatLng coordenadas = new LatLng(Double.parseDouble(ubicacion[0]), Double.parseDouble(ubicacion[1]));
 
         googleMap.addMarker(new MarkerOptions().position(coordenadas));
 
@@ -292,6 +319,16 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
         request.add(jsonObjectRequest);
     }
 
+    private void accionConsulta(){
+
+        switch (consulta){
+            case "horarios" : consultarSuscripcion(); break;
+            case "suscripcion" : consultarCartas();
+                                progressBar.setVisibility(View.GONE);
+                                layout_informacion.setVisibility(View.VISIBLE);break;
+        }
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onResponse(JSONObject response) {
@@ -314,13 +351,11 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
                             String cierre = (jsonObject.optString("hora_cierre"));
                             int estado = (jsonObject.optInt("estado"));
 
-                            listaHorarios.add(new ListaHorarios(dia, apertura, cierre, estado));
+                            listaHorarios.add(new ListaHorarios(idEmpresa, dia, apertura, cierre, estado));
                         }
-                        tvHorarios.setVisibility(View.VISIBLE);
+                        gs.addDatosHorarios(listaHorarios);
 
-                        adaptadorListaHorarios = new AdaptadorListaHorarios(getContext(), listaHorarios);
-                        rvHorarios.setLayoutManager(new GridLayoutManager(getContext(), 1));
-                        rvHorarios.setAdapter(adaptadorListaHorarios);
+                        generarHorarios();
                     }
                     if(consulta.compareTo("carta") == 0) {
 
@@ -363,7 +398,7 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
                                 if(promocion != 0){
                                     String descPromocion = (jsonObject.optString("descripcion"));
                                     int descuento = (jsonObject.optInt("descuento"));
-                                    promocion = (int)(precio - ( precio * (descuento/100)));
+                                    promocion = (int)(precio - ( precio * ((double)descuento/100)));
                                     String fecha = jsonObject.optString("fecha_inicio") + " - " + jsonObject.optString("fecha_fin");
                                     listaProductos.add(new ListaProductos(idEmpresa, id, carta, idProducto, producto, descripcion, precio,
                                             promocion, descPromocion, descuento, fecha));
@@ -423,25 +458,8 @@ public class fragInformacionEmpresa extends Fragment implements OnMapReadyCallba
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if(consulta.compareTo("empresa") == 0){
-            consultarHorarios();
-        }
-        else{
-            if(consulta.compareTo("suscripcion") == 0){
-                consultarCartas();
-            }
-            else{
-                if(consulta.compareTo("carta") == 0){
-                    consultarHorarios();
-                }
-                else{
-                    if(consulta.compareTo("horarios") == 0){
-                        progressBar.setVisibility(View.GONE);
-                        layout_informacion.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-        }
+
+        accionConsulta();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

@@ -71,9 +71,7 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
     RequestQueue request;
     JsonObjectRequest jsonObjectRequest;
 
-
     @RequiresApi(api = Build.VERSION_CODES.M)
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -90,17 +88,7 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
 
         rvFavoritos = v.findViewById(R.id.rvFavoritos);
 
-        if(!gs.isActualizaProductosFavoritos()){
-            if(gs.getDatosProductosFavoritos().size() > 0){
-                listaProductosFavoritos = gs.getDatosProductosFavoritos();
-                generarFavoritos();
-            }
-            else{
-                rvFavoritos.setVisibility(View.GONE);
-                tvMensaje.setVisibility(View.VISIBLE);
-            }
-            progressBar.setVisibility(View.GONE);
-        }
+        verificarFavoritos();
 
         return v;
     }
@@ -115,13 +103,26 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
+    private void verificarFavoritos(){
+        if(!gs.isActualizaProductosFavoritos()){
+            if(gs.getDatosProductosFavoritos().size() > 0){
+                listaProductosFavoritos = gs.getDatosProductosFavoritos();
+                generarFavoritos();
+            }
+            else{
+                rvFavoritos.setVisibility(View.GONE);
+                tvMensaje.setVisibility(View.VISIBLE);
+            }
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void generarFavoritos(){
 
         adaptadorListaProductosFavoritos = new ProductosFavoritos.AdaptadorListaProductosFavoritos(getContext(), listaProductosFavoritos);
         rvFavoritos.setLayoutManager(new GridLayoutManager(getContext(), 1));
         rvFavoritos.setAdapter(adaptadorListaProductosFavoritos);
-
-
     }
 
     public void listarFavoritos(){
@@ -134,9 +135,20 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
         request.add(jsonObjectRequest);
     }
 
+    private void agregarCarrito(int idProducto, String detalles) {
+        consulta = "carrito";
+        String url = "http://" + gs.getIp() + "/Persona/agregar_carrito.php?idPersona="+gs.getIdPersona()+"&idProducto="+idProducto+"&detalles="+detalles;
+
+        url = url.replace(" ", "%20");
+
+        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
+        request.add(jsonObjectRequest);
+    }
+
+
     private void actualizarDetalles(int idFavorito, String detalles){
         consulta = "actualizar_detalles";
-        String url = "http://" + gs.getIp() + "/Persona/actualizar_detalles.php?idFavorito="+idFavorito+"&detalles="+detalles;
+        String url = "http://" + gs.getIp() + "/Persona/actualizar_detalles_favorito.php?idFavorito="+idFavorito+"&detalles="+detalles;
 
         url = url.replace(" ", "%20");
 
@@ -169,7 +181,7 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
                     for (int i = 0; i < datos.length(); i++) {
                         jsonObject = datos.getJSONObject(i);
 
-                        String detalles = "Detalles: " + jsonObject.optString("detalles");
+                        String detalles = jsonObject.optString("detalles");
 
                         int promocion = jsonObject.optInt("id_promocion");
                         int precio = jsonObject.optInt("precio");
@@ -197,9 +209,13 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
                     tvMensaje.setVisibility(View.GONE);
                     rvFavoritos.setVisibility(View.VISIBLE);
                 }
+                if(consulta.compareTo("carrito") == 0){
+                    gs.setActualizaCarrito(true);
+                    Toast.makeText(getContext(), "Producto agregado al carrito", Toast.LENGTH_SHORT).show();
+                }
                 if(consulta.compareTo("actualizar_detalles") == 0){
-                    auxHolder.tvDetalles.setText("Detalles: " + auxDetalles);
-                    listaProductosFavoritos.get(posicion).setDetalles("Detalles: " + auxDetalles);
+                    auxHolder.tvDetalles.setText(auxDetalles);
+                    listaProductosFavoritos.get(posicion).setDetalles(auxDetalles);
                     gs.setDatosProductosFavoritos(listaProductosFavoritos);
 
                     adaptadorListaProductosFavoritos.favorito = listaProductosFavoritos;
@@ -290,6 +306,14 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
                 }
             });
 
+            holder.btnCarrito.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    agregarCarrito(favorito.get(holder.getAdapterPosition()).getIdProducto(),
+                            favorito.get(holder.getAdapterPosition()).getDetalles());
+                }
+            });
+
             holder.btnDetalles.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -318,7 +342,6 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
             AppCompatActivity activity = (AppCompatActivity) v.getContext();
 
 
-            gs.setFragmentEmpresas(fragment);
             fragment.setArguments(args);
             FragmentManager fm = activity.getSupportFragmentManager();
             android.support.v4.app.Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
@@ -339,12 +362,6 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
             dialogo1.setMessage("Describa los detalles de este producto para realizar pedidos");
 
             final EditText etDetalles = new EditText(dialogo1.getContext());
-            String detalle[] = null;
-
-            if(detalles.compareTo("Detalles: ") != 0){
-                detalle = detalles.split("etalles: ");
-                etDetalles.setText(detalle[1]);
-            }
 
             dialogo1.setView(etDetalles);
 
@@ -414,6 +431,7 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
             private TextView tvPrecio;
             private TextView tvPromocion;
             private TextView tvDetalles;
+            private ImageButton btnCarrito;
             private ImageButton btnDetalles;
             private ImageButton btnBorrar;
 
@@ -425,6 +443,7 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
                 tvPrecio = itemView.findViewById(R.id.tvPrecio);
                 tvPromocion = itemView.findViewById(R.id.tvPromocion);
                 tvDetalles = itemView.findViewById(R.id.tvDescProducto);
+                btnCarrito = itemView.findViewById(R.id.btnCarrito);
                 btnDetalles = itemView.findViewById(R.id.btnDetalles);
                 btnBorrar = itemView.findViewById(R.id.btnBorrar);
             }

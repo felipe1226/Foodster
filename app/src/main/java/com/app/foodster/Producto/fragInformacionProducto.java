@@ -22,6 +22,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.app.foodster.Empresa.DatosEmpresa;
 import com.app.foodster.GlobalState;
 import com.app.foodster.R;
 import com.squareup.picasso.Picasso;
@@ -31,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -76,8 +78,6 @@ public class fragInformacionProducto extends Fragment implements Response.Listen
         // Inflate the layout for this fragment
 
         View v = inflater.inflate(R.layout.fragment_frag_informacion_producto, container, false);
-
-
 
         favorito = false;
 
@@ -125,6 +125,8 @@ public class fragInformacionProducto extends Fragment implements Response.Listen
             }
         });
 
+        verificarDomicilio();
+
         mostrarInformacion();
         return v;
     }
@@ -142,6 +144,16 @@ public class fragInformacionProducto extends Fragment implements Response.Listen
 
     }
 
+    private void verificarDomicilio(){
+        ArrayList<DatosEmpresa> empresas = gs.getDatosEmpresa();
+        for(int i=0;i<empresas.size();i++){
+            if(empresas.get(i).getId() == idEmpresa && empresas.get(i).getDomicilio() == 0){
+                    ivCarrito.setVisibility(View.GONE);
+                    break;
+            }
+        }
+    }
+
     private void mostrarInformacion() {
         boolean existeProducto = false;
 
@@ -149,7 +161,6 @@ public class fragInformacionProducto extends Fragment implements Response.Listen
             for(int i=0;i<listaProductos.size();i++){
                 if(listaProductos.get(i).getId() == idProducto){
                     existeProducto = true;
-
 
                     tvCarta.setText(listaProductos.get(i).getCarta());
                     if(listaProductos.get(i).getbFoto1() != null){
@@ -354,8 +365,7 @@ public class fragInformacionProducto extends Fragment implements Response.Listen
                     }
                     if(consulta.compareTo("carrito") == 0){
                         gs.setActualizaCarrito(true);
-                        Snackbar.make(getView(), R.string.mensaje_agregar_carrito, Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
+                        Toast.makeText(getContext(), getString(R.string.mensaje_agregar_carrito), Toast.LENGTH_SHORT).show();
                     }
                 }
                 else{

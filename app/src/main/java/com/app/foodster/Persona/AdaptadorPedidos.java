@@ -1,6 +1,7 @@
 package com.app.foodster.Persona;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,57 +9,88 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.app.foodster.Producto.AdaptadorListaProductos;
-import com.app.foodster.Producto.ListaProductos;
+import com.app.foodster.GlobalState;
 import com.app.foodster.R;
 
 import java.util.ArrayList;
 
-public class AdaptadorListaPedidos extends RecyclerView.Adapter<AdaptadorListaPedidos.MyViewHolder> {
+public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.MyViewHolder> {
 
     Context context;
+    Pedido fragPedido;
+
+    GlobalState gs;
     ArrayList<ListaPedido> pedido;
 
-    ArrayList<ListaProductoPedido> productosPedido;
-    ArrayList<ListaProductoPedido> productos;
-    AdaptadorProductoPedido adaptadorProductoPedido;
+    ArrayList<ListaProductosPedido> productosPedido;
+    ArrayList<ListaProductosPedido> productos;
+    AdaptadorProductosPedido adaptadorProductosPedido;
 
-    public AdaptadorListaPedidos(Context context, ArrayList<ListaPedido> pedido, ArrayList<ListaProductoPedido> productosPedido) {
+    public AdaptadorPedidos(Pedido fragPedido, Context context, ArrayList<ListaPedido> pedido, ArrayList<ListaProductosPedido> productosPedido) {
+        this.fragPedido = fragPedido;
         this.context = context;
         this.pedido = pedido;
         this.productosPedido = productosPedido;
+
+        gs = (GlobalState)context.getApplicationContext();
+    }
+
+    public void actualizar(ArrayList<ListaPedido> lista){
+        pedido = new ArrayList<>();
+        pedido.addAll(lista);
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
-    public AdaptadorListaPedidos.MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public AdaptadorPedidos.MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View v;
         v = LayoutInflater.from(context).inflate(R.layout.item_pedido,viewGroup,false);
-        final AdaptadorListaPedidos.MyViewHolder holder = new AdaptadorListaPedidos.MyViewHolder(v);
+        final AdaptadorPedidos.MyViewHolder holder = new AdaptadorPedidos.MyViewHolder(v);
 
         holder.btnRecibido.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int id = pedido.get(holder.getAdapterPosition()).getId();
-                Toast.makeText(context, "Confirmado", Toast.LENGTH_SHORT).show();
 
+                dialog_recibido(id);
             }
         });
 
         return holder;
     }
 
+    private void dialog_recibido(final int idPedido){
+        android.app.AlertDialog.Builder dialogo1 = new android.app.AlertDialog.Builder(context);
+        dialogo1.setTitle("");
+        dialogo1.setMessage("Confirma que recibió el pedido?");
+        dialogo1.setCancelable(false);
+        dialogo1.setPositiveButton(R.string.text_confirmar, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogo1, int id) {
+                fragPedido.confirmarRecibido(idPedido);
+            }
+        });
+        dialogo1.setNegativeButton(R.string.text_cancelar, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogo1, int id) {
+                dialogo1.cancel();
+            }
+        });
+        dialogo1.show();
+    }
+
     @Override
-    public void onBindViewHolder(@NonNull AdaptadorListaPedidos.MyViewHolder myViewHolder, int i) {
+    public void onBindViewHolder(@NonNull AdaptadorPedidos.MyViewHolder myViewHolder, int i) {
         myViewHolder.tvEmpresa.setText(pedido.get(i).getEmpresa());
         String estado = pedido.get(i).getEstado();
 
         switch (estado){
-            case "Enviado" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_enviado);
+            case "Enviado" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_visto);
+                break;
+            case "Visto" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_enviado);
                 break;
             case "Preparacion" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_preparacion);
                 break;
@@ -67,7 +99,6 @@ public class AdaptadorListaPedidos extends RecyclerView.Adapter<AdaptadorListaPe
                 break;
         }
         myViewHolder.tvEstado.setText(estado);
-
 
         myViewHolder.tvCola.setText(pedido.get(i).getCola());
         myViewHolder.tvPago.setText(pedido.get(i).getPago());
@@ -84,9 +115,9 @@ public class AdaptadorListaPedidos extends RecyclerView.Adapter<AdaptadorListaPe
         }
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
-        adaptadorProductoPedido = new AdaptadorProductoPedido(context, productos);
+        adaptadorProductosPedido = new AdaptadorProductosPedido(context, productos);
         myViewHolder.rvProductos.setLayoutManager(layoutManager);
-        myViewHolder.rvProductos.setAdapter(adaptadorProductoPedido);
+        myViewHolder.rvProductos.setAdapter(adaptadorProductosPedido);
     }
 
     public int getItemCount() {

@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,6 +43,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.app.foodster.GlobalState;
 import com.app.foodster.R;
+import com.app.foodster.Ubicacion.DatosLocalidad;
 import com.app.foodster.Ubicacion.Localidad;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -64,7 +66,8 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
 
     GlobalState gs;
 
-    Localidad localidad;
+    ArrayList<Localidad> localidad = new ArrayList<>();
+    DatosLocalidad datosLocalidad;
 
     LocationManager locationManager;
     double longitud, latitud;
@@ -118,6 +121,10 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
         cargaUbicacion.setMessage("Obteniendo ubicación...");
         cargaUbicacion.setCanceledOnTouchOutside(false);
 
+        carga = new ProgressDialog(this);
+        carga.setMessage("Registrando datos...");
+        carga.setCanceledOnTouchOutside(false);
+
         btnSalir = findViewById(R.id.btnSalir);
         btnSalir.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,7 +156,7 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
 
         etPassword = findViewById(R.id.etPassword);
         etNombre = findViewById(R.id.etNombre);
-        etTelefono = findViewById(R.id.etTelefono);
+        etTelefono = findViewById(R.id.etMovil);
         etDireccion = findViewById(R.id.etDireccion);
 
         etEmail = findViewById(R.id.etEmail);
@@ -174,6 +181,17 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
         });
 
         spDepartamento = findViewById(R.id.spDepartamento);
+        spDepartamento.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                cargarCiudades();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         spCiudad = findViewById(R.id.spCiudad);
 
@@ -211,37 +229,36 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
             }
         });
 
-        carga = new ProgressDialog(this);
-        carga.setMessage("Registrando datos...");
-        carga.setCanceledOnTouchOutside(false);
-
-        cargarUbicaciones();
+        cargarDepartamentos();
     }
 
-    private void cargarUbicaciones() {
-        localidad = new Localidad();
+    private void cargarDepartamentos() {
 
-        ArrayAdapter<CharSequence> adaptador = null;
+        localidad = gs.getLocalidades();
 
-        ArrayList<String> departamentos = new ArrayList<>();
-        ArrayList<String> ciudades = new ArrayList<>();
+        datosLocalidad = new DatosLocalidad(localidad);
 
-        String dep[] = localidad.getDepartamentos();
-        String ciu[] = localidad.getCiudades();
+        ArrayAdapter<CharSequence> adaptador = new ArrayAdapter(this,
+                android.R.layout.simple_spinner_item,
+                datosLocalidad.getDepartamentos());
 
-        for (int i = 0; i < localidad.getDepartamentos().length; i++) {
-            departamentos.add(dep[i]);
-        }
-        adaptador = new ArrayAdapter(this, android.R.layout.simple_spinner_item, departamentos);
         spDepartamento.setAdapter(adaptador);
-
-        for (int j = 0; j < localidad.getDepartamentos().length; j++) {
-            ciudades.add(ciu[j]);
-        }
-        adaptador = new ArrayAdapter(this, android.R.layout.simple_spinner_item, ciudades);
-        spCiudad.setAdapter(adaptador);
+        spDepartamento.setSelection(datosLocalidad.obtenerPosicionItem(spDepartamento, gs.getDepartamento()));
     }
 
+    private void cargarCiudades(){
+
+        String depto = spDepartamento.getSelectedItem().toString();
+
+        datosLocalidad.listaCiudades(depto);
+
+        ArrayAdapter<CharSequence> adaptador = new ArrayAdapter(this,
+                android.R.layout.simple_spinner_item,
+                datosLocalidad.getCiudades());
+
+        spCiudad.setAdapter(adaptador);
+        spCiudad.setSelection(datosLocalidad.obtenerPosicionItem(spCiudad, gs.getCiudad()));
+    }
 
     private void ValidarDatos() {
         String usuario = etUsuario.getText().toString().trim();
@@ -273,7 +290,6 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
             Toast.makeText(this, "Complete los datos, por favor", Toast.LENGTH_LONG).show();
         }
     }
-
 
     private void dialogBorrar(){
         android.app.AlertDialog.Builder dialog = new android.app.AlertDialog.Builder(this);
@@ -360,29 +376,6 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(stringRequest);
     }
-
-    private void cargarDepartamentos() {
-
-        consulta = "departamento";
-        String url = "http://" + gs.getIp() + "/Localidad/listar_departamentos.php";
-
-        url = url.replace(" ", "%20");
-
-        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
-        request.add(jsonObjectRequest);
-    }
-
-    private void cargarCiudades(int id) {
-
-        consulta = "ciudad";
-        String url = "http://" + gs.getIp() + "/Localidad/listar_ciudades.php?idDepartamento=" + id;
-
-        url = url.replace(" ", "%20");
-
-        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
-        request.add(jsonObjectRequest);
-    }
-
 
     @Override
     public void onResponse(JSONObject response) {

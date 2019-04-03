@@ -12,8 +12,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -42,12 +42,11 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
 
     GlobalState gs;
 
-    EditText teclado;
     EditText etUsuario;
     EditText etPassword;
 
-    CheckBox cbRecordar;
-    CheckBox cbSession;
+    Switch cbRecordar;
+    Switch cbSession;
 
     Button btnIngresar;
     Button btnRegistro;
@@ -71,9 +70,6 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
         setContentView(R.layout.activity_login);
 
         gs = (GlobalState)getApplication();
-
-
-
         request = Volley.newRequestQueue(getApplicationContext());
 
         usuario = getIntent().getExtras().getString("usuario");
@@ -102,22 +98,7 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
         btnIngresar.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
-                inputMethodManager.hideSoftInputFromWindow(etPassword.getWindowToken(), 0);
-
-                etUsuario = findViewById(R.id.etUsuario);
-                usuario = etUsuario.getText().toString().trim();
-
-                etPassword = findViewById(R.id.etPassword);
-                password = etPassword.getText().toString().trim();
-
-                if(usuario.compareTo("") != 0 && password.compareTo("") != 0) {
-                    usuarioValido = false;
-                    consultarUsuario(usuario);
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), getString(R.string.text_completar_campos), Toast.LENGTH_SHORT).show();
-                }
+                validarCampos();
             }
         });
 
@@ -125,12 +106,12 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
         btnRegistro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                RegistrarPersona();
+                registrarPersona();
             }
         });
     }
 
-    public void Ingresar(){
+    public void ingresar(){
         Intent ingreso = new Intent(Login.this, Principal.class);
 
         ingreso.addFlags(ingreso.FLAG_ACTIVITY_CLEAR_TOP | ingreso.FLAG_ACTIVITY_SINGLE_TOP);
@@ -138,12 +119,26 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
         progress.hide();
     }
 
-    public void RegistrarPersona(){
+    public void registrarPersona(){
 
         Intent registro = new Intent(this, RegistroPersona.class);
-        registro.addFlags(registro.FLAG_ACTIVITY_CLEAR_TOP | registro.FLAG_ACTIVITY_SINGLE_TOP);
-
         startActivity(registro);
+    }
+
+    private void validarCampos(){
+        InputMethodManager inputMethodManager = (InputMethodManager)getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(etPassword.getWindowToken(), 0);
+
+        usuario = etUsuario.getText().toString().trim();
+        password = etPassword.getText().toString().trim();
+
+        if(usuario.compareTo("") != 0 && password.compareTo("") != 0) {
+            usuarioValido = false;
+            consultarUsuario(usuario);
+        }
+        else{
+            Toast.makeText(getApplicationContext(), getString(R.string.text_completar_campos), Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void consultarUsuario(String usuario) {
@@ -224,7 +219,37 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
         else{
             editorCuenta.putString("session", "");
         }
-        editorCuenta.commit();
+        editorCuenta.apply();
+    }
+
+    private void accionConsulta(boolean existePedidos){
+
+        if(consulta.compareTo("usuario") == 0 && usuarioValido){
+            obtenerDatos();
+        }
+        else{
+            switch(consulta){
+                case "persona" : verificarPreferencias();
+                    consultarPedidos();
+                    break;
+
+                case "pedido" : if(existePedidos){
+                                    listarEmpresas();
+                                    gs.setExistePedidos(true);
+                                    HiloPedidos hiloPedidos = new HiloPedidos(getApplicationContext(), gs);
+                                    hiloPedidos.execute();
+                                    gs.setHiloPedidos(hiloPedidos);
+                                }
+                                else{
+                                    gs.setActualizaEmpresas(true);
+                                    ingresar();
+                                }
+                                break;
+
+                case "empresa" : gs.setActualizaEmpresas(true);
+                                ingresar(); break;
+            }
+        }
     }
 
     @Override
@@ -276,7 +301,8 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
                     gs.setNombre(jsonObject.optString("nombre"));
                     gs.setTelefono(jsonObject.optString("telefono"));
                     gs.setEmail(jsonObject.optString("email"));
-                    gs.setidCiudad(jsonObject.optInt("id_ciudad"));
+                    gs.setDepartamento(jsonObject.optString("departamento"));
+                    gs.setCiudad(jsonObject.optString("ciudad"));
                 }
 
                 if(consulta.compareTo("pedido") == 0){
@@ -299,12 +325,13 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
                                 jsonObject.optString("nombre_sucursal"),
                                 jsonObject.optString("banner"),
                                 jsonObject.optString("descripcion"),
-                                jsonObject.optInt("metodo_pago"),
                                 jsonObject.optString("direccion"),
                                 jsonObject.optString("ubicacion"),
                                 jsonObject.optString("telefono"),
                                 jsonObject.optString("movil"),
-                                jsonObject.optString("ciudad")));
+                                jsonObject.optString("ciudad"),
+                                jsonObject.optInt("domicilio"),
+                                jsonObject.optInt("pagos_online")));
 
                         if(i == 0){
                             categorias.add(categoria);
@@ -330,35 +357,7 @@ public class Login extends AppCompatActivity implements Response.Listener<JSONOb
             e.printStackTrace();
         }
 
-        gs.setActualizaEmpresas(true);
-        if(consulta.compareTo("usuario") == 0 && usuarioValido){
-            obtenerDatos();
-        }
-        else{
-            if(consulta.compareTo("persona") == 0){
-                verificarPreferencias();
-                consultarPedidos();
-            }
-            else{
-                if(consulta.compareTo("pedido") == 0){
-                    if(existePedidos){
-                        listarEmpresas();
-                        gs.setExistePedidos(true);
-                        HiloPedidos hiloPedidos = new HiloPedidos(getApplicationContext(), findViewById(android.R.id.content), gs);
-                        hiloPedidos.execute();
-                        gs.setHiloPedidos(hiloPedidos);
-                    }
-                    else{
-                        Ingresar();
-                    }
-                }
-                else{
-                    if(consulta.compareTo("empresa") == 0){
-                        Ingresar();
-                    }
-                }
-            }
-        }
+        accionConsulta(existePedidos);
     }
 
     @Override

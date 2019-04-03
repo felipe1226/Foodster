@@ -59,21 +59,29 @@
         app:layout_constraintTop_toTopOf="@+id/tvPrecio" />
 
     <TextView
-        android:id="@+id/tvDescProducto"
-        android:layout_width="0dp"
+        android:id="@+id/textView12"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginEnd="25dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="25dp"
-        android:layout_marginStart="20dp"
         android:layout_marginTop="5dp"
         android:text="Detalles:"
         android:textSize="10sp"
+        app:layout_constraintStart_toStartOf="@+id/tvPrecio"
+        app:layout_constraintTop_toBottomOf="@+id/tvPrecio" />
+
+    <TextView
+        android:id="@+id/tvDescProducto"
+        android:layout_width="0dp"
+        android:layout_height="15dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="25dp"
+        android:layout_marginStart="5dp"
+        android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btnDetalles"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvPrecio" />
+        app:layout_constraintStart_toEndOf="@+id/textView12"
+        app:layout_constraintTop_toTopOf="@+id/textView12" />
 
     <ImageButton
         android:id="@+id/btnDetalles"
@@ -112,5 +120,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvDescProducto" />
+
+    <ImageButton
+        android:id="@+id/btnCarrito"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnDetalles"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_add_cart" />
 
 </android.support.constraint.ConstraintLayout>

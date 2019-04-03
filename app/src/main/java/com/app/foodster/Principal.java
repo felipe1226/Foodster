@@ -2,6 +2,7 @@ package com.app.foodster;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -12,19 +13,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.app.foodster.Empresa.fragInformacionEmpresa;
 import com.app.foodster.Persona.Carrito;
 import com.app.foodster.Persona.Cuenta;
 import com.app.foodster.Empresa.Empresas;
+import com.app.foodster.Persona.HistoricoPedidos;
 import com.app.foodster.Persona.Pedido;
+import com.app.foodster.Persona.Perfil;
+import com.app.foodster.Persona.ProductosFavoritos;
+import com.app.foodster.Producto.fragInformacionProducto;
 
 public class Principal extends AppCompatActivity {
 
     Fragment fragment = null;
 
     GlobalState gs;
+    boolean verificarSeleccion;
 
     BottomNavigationView navigation;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +38,9 @@ public class Principal extends AppCompatActivity {
         setContentView(R.layout.activity_principal);
 
         gs = (GlobalState) getApplication();
+        gs.setPrincipal(this);
 
         navigation = findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(navListener);
 
         if(savedInstanceState == null){
             if(gs.getFragmentActual() == null){
@@ -43,52 +49,57 @@ public class Principal extends AppCompatActivity {
                 }
                 else{
                     fragment = new Empresas();
-                    gs.setFragmentActualEmpresas("Empresas");
                 }
-
-                gs.setFragmentEmpresas(fragment);
-
-                addFragment();
+                //gs.setFragment(fragment);
             }
+            else{
+                fragment = new Pedido();
+            }
+            addFragment();
+            verificarSeleccion = true;
         }
 
-        //getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new Empresas()).commit();
+        navigation.setOnNavigationItemSelectedListener(navListener);
+
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
+            if(verificarSeleccion){
+                switch (item.getItemId()){
+                    case R.id.menu_empresas:
+                        gs.setFragmentActual("Empresas");
+                        break;
 
-            switch (item.getItemId()){
-                case R.id.menu_empresas:
-                    gs.setFragmentActual("Empresas");
-                    break;
+                    case R.id.menu_eventos:
+                        gs.setFragmentActual("Eventos");
+                        break;
 
-                case R.id.menu_eventos:
-                    gs.setFragmentActual("Eventos");
-                    break;
+                    case R.id.menu_mapa:
+                        gs.setFragmentActual("Mapa");
+                        break;
 
-                case R.id.menu_mapa:
-                    gs.setFragmentActual("Mapa");
-                    break;
+                    case R.id.menu_carrito:
+                        gs.setFragmentActual("Carrito");
+                        break;
 
-                case R.id.menu_carrito:
-                    gs.setFragmentActual("Carrito");
-                    break;
+                    case R.id.menu_cuenta:
+                        gs.setFragmentActual("Cuenta");
+                        break;
+                }
 
-                case R.id.menu_cuenta:
-                    gs.setFragmentActual("Cuenta");
-                    break;
+                verificarFragmentMenu();
+                reemplazarFragment();
             }
-
-            verificarFragmentMenu();
-            reemplazarFragment();
+            verificarSeleccion = true;
             return true;
         }
     };
 
     private void verificarFragmentMenu(){
+
         switch(gs.getFragmentActual()){
             case "Empresas": fragment = new Empresas();
                 break;
@@ -104,18 +115,39 @@ public class Principal extends AppCompatActivity {
         }
     }
 
-    private void verificarFragmentBack(){
-
-
+    private void seleccionarIcono(){
+        verificarSeleccion = false;
+        if(fragment instanceof Empresas
+                || fragment instanceof fragInformacionEmpresa
+                || fragment instanceof fragInformacionProducto){
+            navigation.setSelectedItemId(R.id.menu_empresas);
+        }
+        if(fragment instanceof Mapa){
+            navigation.setSelectedItemId(R.id.menu_mapa);
+        }
+        if(fragment instanceof Carrito || fragment instanceof Pedido){
+            navigation.setSelectedItemId(R.id.menu_carrito);
+        }
+        if(fragment instanceof Cuenta
+                || fragment instanceof Perfil
+                || fragment instanceof ProductosFavoritos
+                || fragment instanceof HistoricoPedidos){
+            navigation.setSelectedItemId(R.id.menu_cuenta);
+        }
     }
 
     private void addFragment(){
+
+        seleccionarIcono();
+
         android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, fragment, fragment.getClass().toString()).addToBackStack(null);
         fragmentTransaction.commit();
     }
 
-    private void reemplazarFragment(){
+
+
+    public void reemplazarFragment(){
 
         FragmentManager fm = getSupportFragmentManager();
         Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
@@ -124,7 +156,7 @@ public class Principal extends AppCompatActivity {
             getSupportFragmentManager()
                     .beginTransaction()
                     .addToBackStack(null)
-                    .replace(R.id.fragment_container, fragment, fragment.getClass().toString()) // add and tag the new fragment
+                    .replace(R.id.fragment_container, fragment, fragment.getClass().toString()).addToBackStack(null) // add and tag the new fragment
                     .commit();
         }
     }
@@ -138,7 +170,6 @@ public class Principal extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                limpiarDatos();
                 finish();
             }
         });
@@ -147,31 +178,35 @@ public class Principal extends AppCompatActivity {
         dialog.show();
     }
 
-    private void limpiarDatos(){
-        gs.setUsuario("");
-        gs.setPassword("");
-    }
-
     @Override
     public void onBackPressed() {
 
         fragment = gs.getFragment();
-        if(fragment instanceof Empresas || fragment instanceof Mapa || fragment instanceof Carrito || fragment instanceof Cuenta){
-            Toast.makeText(this, "Salir", Toast.LENGTH_SHORT).show();
+
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+        Toast.makeText(this, "Count: "+count, Toast.LENGTH_SHORT).show();
+        if (count == 1) {
+            if(fragment instanceof Empresas){
+                Toast.makeText(this, "Salir", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                if(fragment instanceof Pedido){
+                    fragment = new Empresas();
+                    seleccionarIcono();
+                    reemplazarFragment();
+                }
+            }
+            //
         }
         else{
-            /*verificarFragmentBack();
-            //reemplazarFragment();*/
-
-            int count = getSupportFragmentManager().getBackStackEntryCount();
-            Toast.makeText(this, "Count: "+count, Toast.LENGTH_SHORT).show();
-            if (count == 0) {
-                super.onBackPressed();
-
-            } else {
-                getSupportFragmentManager().popBackStack();
-            }
+            //super.onBackPressed();
+            getSupportFragmentManager().popBackStack();
+            FragmentManager fm = getSupportFragmentManager();
+            Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
+            fragment = currentFragment;
+            gs.setFragment(fragment);
+            seleccionarIcono();
+            //getSupportFragmentManager().popBackStack();
         }
     }
-
 }

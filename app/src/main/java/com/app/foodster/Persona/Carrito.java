@@ -41,6 +41,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.app.foodster.Empresa.DatosEmpresa;
 import com.app.foodster.Empresa.fragInformacionEmpresa;
 import com.app.foodster.GlobalState;
 import com.app.foodster.Login;
@@ -90,7 +91,6 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
     AlertDialog dialogPedido;
     ProgressDialog progress;
 
-    int metodo;
     int idCarrito;
     int total;
     int idPedido;
@@ -149,6 +149,20 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
         rvEmpresas = v.findViewById(R.id.rvEmpresas);
 
+        verificarCarritos();
+
+        return v;
+    }
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        gs = (GlobalState) getActivity().getApplication();
+        gs.setFragment(this);
+        request = Volley.newRequestQueue(getActivity().getApplicationContext());
+    }
+
+    private void verificarCarritos(){
         if(!gs.isActualizaCarrito()){
             if(gs.getDatosEmpresaCarrito().size() > 0){
                 listaEmpresaCarrito = gs.getDatosEmpresaCarrito();
@@ -164,16 +178,6 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
             }
             progressBar.setVisibility(View.GONE);
         }
-
-        return v;
-    }
-
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        gs = (GlobalState) getActivity().getApplication();
-
-        request = Volley.newRequestQueue(getActivity().getApplicationContext());
     }
 
     private void generarEmpresasCarritos(){
@@ -271,45 +275,43 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
         final LinearLayout layout_efectivo = view.findViewById(R.id.layout_efectivo);
         final LinearLayout layout_tarjeta = view.findViewById(R.id.layout_tarjeta);
 
-        RadioButton rbEfectivo = view.findViewById(R.id.rbEfectivo);
-        RadioButton rbTarjeta = view.findViewById(R.id.rbTarjeta);
+        final RadioButton rbEfectivo = view.findViewById(R.id.rbEfectivo);
+        final RadioButton rbTarjeta = view.findViewById(R.id.rbTarjeta);
 
-        if(metodo == 1){
-            rbEfectivo.setVisibility(View.VISIBLE);
-            rbTarjeta.setVisibility(View.GONE);
-        }
-        else{
-            if(metodo == 2){
-                rbEfectivo.setVisibility(View.GONE);
-                rbTarjeta.setVisibility(View.VISIBLE);
-            }
-            else{
-                rbEfectivo.setVisibility(View.VISIBLE);
-                rbTarjeta.setVisibility(View.VISIBLE);
+        ArrayList<DatosEmpresa> empresas = gs.getDatosEmpresa();
+        for(int i=0;i<empresas.size();i++){
+            if(empresas.get(i).getId() == empresaPedido && empresas.get(i).getPago() == 0){
+                rbTarjeta.setVisibility(View.GONE);
+                break;
             }
         }
 
         rbEfectivo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                pagoPedido = "Efectivo";
-                layout_efectivo.setVisibility(View.VISIBLE);
-                layout_tarjeta.setVisibility(View.GONE);
+                if(rbEfectivo.isChecked()){
+                    pagoPedido = "Efectivo";
+                    layout_efectivo.setVisibility(View.VISIBLE);
+                    layout_tarjeta.setVisibility(View.GONE);
+                }
             }
         });
 
         rbTarjeta.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                pagoPedido = "Tarjeta";
-                layout_efectivo.setVisibility(View.GONE);
-                layout_tarjeta.setVisibility(View.VISIBLE);
+                if(rbTarjeta.isChecked()){
+                    pagoPedido = "Tarjeta";
+                    layout_efectivo.setVisibility(View.GONE);
+                    layout_tarjeta.setVisibility(View.VISIBLE);
+                }
             }
         });
 
-
         final EditText etEfectivo = view.findViewById(R.id.etEfectivo);
         final TextView tvDevuelta = view.findViewById(R.id.tvDevuelta);
+        tvDevuelta.setText("Devuelta: $0");
+        final TextView tvMensaje = view.findViewById(R.id.tvMensaje);
 
         etEfectivo.addTextChangedListener(new TextWatcher() {
             @Override
@@ -319,19 +321,21 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                tvMensaje.setVisibility(View.GONE);
                 if(etEfectivo.getText().toString().compareTo("") != 0){
                     efectivoPedido = Integer.parseInt(etEfectivo.getText().toString());
                     int devuelta = efectivoPedido - costoPedido;
-                    tvDevuelta.setText(String.valueOf(devuelta));
+                    if(devuelta < 0){
+                        devuelta = 0;
+                    }
+                    tvDevuelta.setText("Devuelta: $" + devuelta);
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-
             }
         });
-
 
         final Button btnCancelar = view.findViewById(R.id.btnCancelar);
         final Button btnConfirmar = view.findViewById(R.id.btnConfirmar);
@@ -347,10 +351,8 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                     btnCancelar.setText("Cancelar");
                     btnConfirmar.setText("Siguiente");
                 }
-
             }
         });
-
 
         btnConfirmar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -362,8 +364,14 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                     btnConfirmar.setText("Confirmar");
                 }
                 else{
-                    progress.show();
-                    realizarPedido();
+                    if( (efectivoPedido - costoPedido) >= 0){
+                        progress.show();
+                        realizarPedido();
+                        //Toast.makeText(getContext(),"Pedido", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        tvMensaje.setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });
@@ -491,12 +499,18 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                         else{
                             Toast.makeText(getContext(), "Pedido solicitado", Toast.LENGTH_SHORT).show();
                             contEliminarCarritos = productos.size();
-                            idCarrito = productos.get(contEliminarCarritos-1).getIdCarrito();
+                            idCarrito = productos.get((contEliminarCarritos)-1).getIdCarrito();
                             eliminarCarrito();
+                            progress.hide();
                             dialogPedido.cancel();
-                            HiloPedidos hiloPedidos = new HiloPedidos(getContext(), getView(), gs);
+                            HiloPedidos hiloPedidos = new HiloPedidos(getContext(), gs);
+                            FragmentManager fm = getFragmentManager();
+                            Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
+                            hiloPedidos.setFragment(currentFragment);
                             hiloPedidos.execute();
                             gs.setHiloPedidos(hiloPedidos);
+
+                            gs.setActualizaPedido(true);
                         }
                     }
                 },
@@ -537,7 +551,6 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
         AppCompatActivity activity = (AppCompatActivity) v.getContext();
 
-        gs.setFragmentEmpresas(fragment);
         fragment.setArguments(args);
         FragmentManager fm = activity.getSupportFragmentManager();
         Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
@@ -546,8 +559,35 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
             activity.getSupportFragmentManager()
                     .beginTransaction()
                     .addToBackStack(null)
-                    .replace(R.id.fragment_container, fragment, fragment.getClass().toString()) // add and tag the new fragment
+                    .replace(R.id.fragment_container, fragment, fragment.getClass().toString()).addToBackStack(null) // add and tag the new fragment
                     .commit();
+        }
+    }
+
+    private void accionConsulta(){
+
+        switch (consulta){
+            case "direccion" : dialogPedido(); break;
+
+            case "eliminar_carrito" : if(contEliminarCarritos == 0){
+                                            progressEliminar.cancel();
+                                            if(listaCarritos.size() > 0){
+                                                verificarEmpresasCarritos();
+                                            }
+                                            else{
+                                                listaEmpresaCarrito = new ArrayList<>();
+                                                gs.setDatosEmpresaCarrito(listaEmpresaCarrito);
+
+                                                progressBar.setVisibility(View.GONE);
+                                                layout_carrito.setVisibility(View.GONE);
+                                                tvMensaje.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                        else{
+                                            idCarrito = productos.get((contEliminarCarritos)-1).getIdCarrito();
+                                            eliminarCarrito();
+                                        }
+                                        break;
         }
     }
 
@@ -573,8 +613,9 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
                         int idEmpresa = jsonObject.optInt("idEmpresa");
                         String empresa = jsonObject.optString("empresa");
+                        int cantidad = jsonObject.optInt("cantidad");
                         int promocion = jsonObject.optInt("id_promocion");
-                        int precio = jsonObject.optInt("precio");
+                        int precio = cantidad * jsonObject.optInt("precio");
                         int descuento = jsonObject.optInt("descuento");
                         String detalles = jsonObject.optString("detalles");
 
@@ -594,6 +635,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                                 jsonObject.optInt("idProducto"),
                                 idEmpresa,
                                 empresa,
+                                cantidad,
                                 jsonObject.optString("nombre"),
                                 precio,
                                 promocion,
@@ -675,31 +717,8 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
         catch (JSONException e) {
             e.printStackTrace();
         }
-        if(consulta.compareTo("direccion") == 0){
-            dialogPedido();
-        }
-        else{
-            if(consulta.compareTo("eliminar_carrito") == 0){
-                if(contEliminarCarritos == 0){
-                    progress.cancel();
-                    if(listaCarritos.size() > 0){
-                        verificarEmpresasCarritos();
-                    }
-                    else{
-                        listaEmpresaCarrito = new ArrayList<>();
-                        gs.setDatosEmpresaCarrito(listaEmpresaCarrito);
 
-                        progressBar.setVisibility(View.GONE);
-                        layout_carrito.setVisibility(View.GONE);
-                        tvMensaje.setVisibility(View.VISIBLE);
-                    }
-                }
-                else{
-                    idCarrito = productos.get(contEliminarCarritos-1).getIdCarrito();
-                    eliminarCarrito();
-                }
-            }
-        }
+        accionConsulta();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -717,6 +736,12 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
         public AdaptadorListaEmpresasCarrito(Context context, ArrayList<ListaEmpresaCarrito> empresa) {
             this.context = context;
             this.empresa = empresa;
+        }
+
+        public void actualizar(ArrayList<ListaEmpresaCarrito> lista){
+            empresa = new ArrayList<>();
+            empresa.addAll(lista);
+            notifyDataSetChanged();
         }
 
         @NonNull
@@ -743,12 +768,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                 public void onClick(View view) {
                     empresaPedido = empresa.get(holder.getAdapterPosition()).getId();
                     costoPedido = empresa.get(holder.getAdapterPosition()).getTotal();
-                    metodo = 0;
-                    for(int i=0;i<gs.getDatosEmpresa().size();i++){
-                        if(gs.getDatosEmpresa().get(i).getId() == empresa.get(holder.getAdapterPosition()).getId()){
-                            metodo = gs.getDatosEmpresa().get(i).getMetodo_pago();
-                        }
-                    }
+
                     if(!gs.isActualizaDirecciones()){
                         if(gs.getDatosDireccion().size() > 0){
                             listaDireccion = gs.getDatosDireccion();
@@ -771,8 +791,6 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
             myViewHolder.tvEmpresa.setText(empresa.get(i).getEmpresa());
             myViewHolder.tvTotalPedido.setText("$" + empresa.get(i).getTotal());
 
-            LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
-
             carritos = new ArrayList<>();
 
             for(int j=0;j<listaCarritos.size();j++){
@@ -781,6 +799,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                 }
             }
 
+            LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
             adaptadorListaCarrito = new AdaptadorListaCarrito(context, carritos);
             myViewHolder.rvCarritos.setLayoutManager(layoutManager);
             myViewHolder.rvCarritos.setAdapter(adaptadorListaCarrito);
@@ -819,12 +838,56 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
             this.carrito = carrito;
         }
 
+        public void actualizar(ArrayList<ListaCarrito> lista){
+            carrito = new ArrayList<>();
+            carrito.addAll(lista);
+            notifyDataSetChanged();
+        }
+
         @NonNull
         @Override
         public AdaptadorListaCarrito.MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
             final View v;
             v = LayoutInflater.from(context).inflate(R.layout.item_carrito,viewGroup,false);
             final AdaptadorListaCarrito.MyViewHolder holder = new AdaptadorListaCarrito.MyViewHolder(v);
+
+            holder.etCant.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if(holder.etCant.getText().toString().compareTo("") != 0){
+                        calcularPrecio(holder);
+                    }
+                    else{
+                        if(holder.etCant.getText().toString().compareTo("0") == 0){
+                            holder.etCant.setText("1");
+                            calcularPrecio(holder);
+                        }
+                    }
+
+                    //actualizar(carrito);
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
+
+            holder.etCant.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if(holder.etCant.getText().toString().compareTo("") == 0
+                            || holder.etCant.getText().toString().compareTo("0") == 0 ){
+                        holder.etCant.setText("1");
+                        calcularPrecio(holder);
+                    }
+                }
+            });
 
             holder.tvNombre.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -853,6 +916,21 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                 }
             });
             return holder;
+        }
+
+        private void calcularPrecio(AdaptadorListaCarrito.MyViewHolder holder){
+            int precio = 0;
+            int cant = Integer.parseInt(holder.etCant.getText().toString());
+            if(carrito.get(holder.getAdapterPosition()).getPromocion() == 0){
+                precio = cant * carrito.get(holder.getAdapterPosition()).getPrecio();
+                carrito.get(holder.getAdapterPosition()).setCantPrecio(precio);
+
+            }
+            else{
+                precio = cant * carrito.get(holder.getAdapterPosition()).getPromocion();
+                carrito.get(holder.getAdapterPosition()).setCantPromocion(precio);
+            }
+            holder.tvPrecio.setText("$"+precio);
         }
 
         private void dialog_detalles(final String detalles, final AdaptadorListaCarrito.MyViewHolder holder){
@@ -891,6 +969,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
                 public void onClick(DialogInterface dialogo1, int id) {
                     idCarrito = carrito.get(holder.getAdapterPosition()).getIdCarrito();
                     progressEliminar.show();
+                    contEliminarCarritos = 1;
                     eliminarCarrito();
                 }
             });
@@ -904,6 +983,8 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
         @Override
         public void onBindViewHolder(@NonNull AdaptadorListaCarrito.MyViewHolder myViewHolder, int i) {
+
+            myViewHolder.etCant.setText(String.valueOf(carrito.get(i).getCant()));
             myViewHolder.tvNombre.setText(carrito.get(i).getNombre());
 
             int precio = carrito.get(i).getPrecio();
@@ -925,6 +1006,7 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
         public class MyViewHolder extends RecyclerView.ViewHolder{
 
+            private EditText etCant;
             private TextView tvNombre;
             private TextView tvPrecio;
             private TextView tvPromocion;
@@ -934,6 +1016,8 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
 
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
+
+                etCant = itemView.findViewById(R.id.etCant);
                 tvNombre = itemView.findViewById(R.id.tvNombre);
                 tvPrecio = itemView.findViewById(R.id.tvPrecio);
                 tvPromocion = itemView.findViewById(R.id.tvPromocion);
@@ -984,7 +1068,6 @@ public class Carrito extends Fragment implements Response.Listener<JSONObject>, 
             if(mSelectedItem == i){
                 direccionPedido = direccion.get(i).getDireccion();
                 ubicacionPedido = direccion.get(i).getUbicacion();
-                Toast.makeText(context, direccionPedido, Toast.LENGTH_SHORT).show();
             }
         }
 

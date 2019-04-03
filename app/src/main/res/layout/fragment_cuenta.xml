@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/background_light"
     android:orientation="vertical"
     tools:context=".Persona.Cuenta">
 
@@ -10,10 +11,10 @@
 
     <Button
         android:id="@+id/btnPerfil"
-        style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="left"
+        android:background="#00ffffff"
+        android:gravity="left|center_vertical"
         android:paddingLeft="20dp"
         android:text="Perfil"
         android:textAllCaps="false" />
@@ -22,7 +23,8 @@
         android:id="@+id/btnDirecciones"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="left"
+        android:background="#00ffffff"
+        android:gravity="left|center_vertical"
         android:paddingLeft="20dp"
         android:text="Mis direcciones"
         android:textAllCaps="false" />
@@ -31,27 +33,50 @@
         android:id="@+id/btnFavoritos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="left"
+        android:background="#00ffffff"
+        android:gravity="left|center_vertical"
         android:paddingLeft="20dp"
         android:text="Favoritos"
         android:textAllCaps="false" />
 
     <Button
-        android:id="@+id/btnNotificaciones"
+        android:id="@+id/btnPedidos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="left"
+        android:background="#00ffffff"
+        android:gravity="left|center_vertical"
         android:paddingLeft="20dp"
-        android:text="Notificaciones"
+        android:text="Histórico de pedidos"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btnSugerir"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#00ffffff"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="Sugerir un establecimiento"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btnAjustes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#00ffffff"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="Ajustes"
         android:textAllCaps="false" />
 
     <Button
         android:id="@+id/btnSession"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cerrar sessión"
-        android:gravity="left"
+        android:background="#00ffffff"
+        android:gravity="left|center_vertical"
         android:paddingLeft="20dp"
-        android:textAllCaps="false"/>
+        android:text="Cerrar sessión"
+        android:textAllCaps="false" />
 
 </LinearLayout>

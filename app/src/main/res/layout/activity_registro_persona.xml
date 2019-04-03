@@ -127,7 +127,7 @@
                 tools:layout_editor_absoluteX="0dp" />
 
             <EditText
-                android:id="@+id/etTelefono"
+                android:id="@+id/etMovil"
                 android:layout_width="200dp"
                 android:layout_height="match_parent"
                 android:ems="10"
@@ -200,7 +200,7 @@
                 android:text="Email"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etTelefono" />
+                app:layout_constraintTop_toBottomOf="@+id/etMovil" />
 
             <EditText
                 android:id="@+id/etEmail"
