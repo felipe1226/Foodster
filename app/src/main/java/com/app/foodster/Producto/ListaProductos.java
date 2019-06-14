@@ -6,7 +6,6 @@ public class ListaProductos {
 
     private int idEmpresa;
     private int idCarta;
-    private String carta;
     private int id;
     private String foto1;
     private String foto2;
@@ -23,11 +22,10 @@ public class ListaProductos {
     private int descuento;
     private String fecha;
 
-    public ListaProductos(int idEmpresa, int idCarta, String carta, int id, String nombre, String descripcion, int precio,
+    public ListaProductos(int idEmpresa, int idCarta, int id, String nombre, String descripcion, int precio,
                           int promocion) {
         this.idEmpresa = idEmpresa;
         this.idCarta = idCarta;
-        this.carta = carta;
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -35,11 +33,10 @@ public class ListaProductos {
         this.promocion = promocion;
     }
 
-    public ListaProductos(int idEmpresa, int idCarta, String carta, int id, String nombre, String descProducto, int precio,
+    public ListaProductos(int idEmpresa, int idCarta, int id, String nombre, String descProducto, int precio,
                           int promocion, String descPromocion, int descuento, String fecha) {
         this.idEmpresa = idEmpresa;
         this.idCarta = idCarta;
-        this.carta = carta;
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -64,14 +61,6 @@ public class ListaProductos {
 
     public void setIdCarta(int idCarta) {
         this.idCarta = idCarta;
-    }
-
-    public String getCarta() {
-        return carta;
-    }
-
-    public void setCarta(String carta) {
-        this.carta = carta;
     }
 
     public int getId() {

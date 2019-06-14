@@ -1,32 +1,39 @@
 package com.app.foodster;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
-import com.android.volley.Request;
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.app.foodster.Empresa.DatosEmpresa;
+import com.app.foodster.Persona.Documentos;
 import com.app.foodster.Persona.HiloPedidos;
-import com.app.foodster.Ubicacion.Localidad;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,11 +41,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Splash extends AppCompatActivity implements Response.Listener<JSONObject>, Response.ErrorListener{
+public class Splash extends AppCompatActivity {
 
     GlobalState gs;
 
-    String consulta;
+    String tipoConexion;
 
     int idUsuario;
     String usuario;
@@ -48,9 +55,11 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
     private ArrayList<DatosEmpresa> datosEmpresa;
     ArrayList<String> categorias;
 
+    View view;
     RequestQueue request;
     JsonObjectRequest jsonObjectRequest;
 
+    @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,10 +68,28 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(R.layout.activity_splash);
+        view = findViewById(R.layout.activity_splash);
 
         gs = (GlobalState)getApplication();
         request = Volley.newRequestQueue(getApplicationContext());
 
+    }
+
+    private boolean verificarConexion(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected() && networkInfo.isAvailable()) {
+            if(networkInfo.getType() == ConnectivityManager.TYPE_MOBILE){
+                tipoConexion = "mobile";
+            }
+            if(networkInfo.getType() == ConnectivityManager.TYPE_WIFI){
+                tipoConexion = "wifi";
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void verificarPreferencias(){
@@ -76,7 +103,16 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
             cargar(1);
         }
         else{
-            consultarUsuario(usuario);
+            if (verificarConexion()){
+                GenerarDatos generarDatos = new GenerarDatos(gs, request);
+                gs.setActualizaEmpresas(false);
+
+                consultarPersona(usuario);
+            }
+            else{
+                cargar(1);
+                Toast.makeText(getApplicationContext(), "No tienes conexion.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -108,7 +144,55 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
         }, 2000);
     }
 
-    public void consultarUsuario(String usuario) {
+    public void consultarPersona(String usuario) {
+
+            /*try {
+                String passwdMd5 = this.toMd5(password);
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }*/
+
+        String url = "http://" + gs.getIp() + "/Usuario/consultar_persona.php?email=" + usuario;
+        url = url.replace(" ", "%20");
+
+        jsonObjectRequest = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                JSONArray datos = response.optJSONArray("persona");
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = datos.getJSONObject(0);
+                    if (jsonObject.optString("id").compareTo("0") != 0) {
+                        consultaPersona(jsonObject);
+                        consultarPedidos();
+                    }
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                detectarError(error);
+            }
+        });
+        request.add(jsonObjectRequest);
+    }
+
+    private void detectarError(VolleyError error){
+        if (error instanceof AuthFailureError){
+            Log.e("VOLLEY", "Se ha producido un fallo con las credenciales. " + error.getMessage() );
+        } else if (error instanceof NetworkError) {
+            Log.e("VOLLEY", "Se ha producido un fallo en la red. "+ error.getMessage());
+        } else if (error instanceof NoConnectionError) {
+            Log.e("VOLLEY", "Se ha producido un fallo en la conexión. "+ error.getMessage());
+        } else if (error instanceof TimeoutError) {
+            Log.e("VOLLEY", "Fallo en tiempo de espera. "+ error.getMessage());
+        }
+    }
+
+    /*public void consultarUsuario(String usuario) {
         consulta = "usuario";
         String url = "http://" + gs.getIp() + "/Usuario/consultar_usuario.php?usuario=" + usuario;
 
@@ -116,62 +200,97 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
 
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
         request.add(jsonObjectRequest);
-    }
+    }*/
 
-    private void obtenerDatos() {
+    /*private void obtenerDatos() {
 
-        consulta = "persona";
-        String url = "http://" + gs.getIp() + "/Persona/consultar_persona.php?idUsuario="+idUsuario;
+        consulta = "datos";
+        String url = "http://" + gs.getIp() + "/Persona/consultar_persona.php?idPersona="+gs.getIdPersona();
 
         url = url.replace(" ", "%20");
 
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
         request.add(jsonObjectRequest);
-    }
+    }*/
 
     private void consultarPedidos() {
 
-        consulta = "pedido";
         String url = "http://" + gs.getIp() + "/Persona/consultar_pedidos.php?idPersona="+gs.getIdPersona();
 
         url = url.replace(" ", "%20");
 
-        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
+        jsonObjectRequest = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                JSONArray datos = response.optJSONArray("pedido");
+                JSONObject jsonObject = null;
+                try {
+                    boolean existePedidos = false;
+                    jsonObject = datos.getJSONObject(0);
+                    if (jsonObject.optString("id").compareTo("0") != 0) {
+                        existePedidos = true;
+                    }
+
+                    consultaPedidos(existePedidos);
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                detectarError(error);
+            }
+        });
         request.add(jsonObjectRequest);
     }
 
-    private void listarCiudades(){
-        consulta = "ciudad";
-
-        String url = "http://" + gs.getIp() + "/Ubicacion/listar_ciudades.php";
-
-        url = url.replace(" ", "%20");
-
-        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
-        request.add(jsonObjectRequest);
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+            verificarPreferencias();
     }
 
-    private void listarEmpresas(){
-        consulta = "empresa";
+    /*@Override
+    public void onResponse(JSONObject response) {
 
-        String url = "http://" + gs.getIp() + "/Empresa/listar_empresas.php";
+        JSONArray datos = response.optJSONArray(consulta);
+        JSONObject jsonObject = null;
 
-        url = url.replace(" ", "%20");
+        boolean existePedidos = false;
+        try {
+            jsonObject = datos.getJSONObject(0);
+            if(jsonObject.optString("id").compareTo("0") != 0) {
+                switch (consulta){
 
-        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
-        request.add(jsonObjectRequest);
-    }
+                    case "persona": consultaPersona(jsonObject);
+                        break;
 
-    private void accionConsulta(boolean existePedidos){
+                    case "usuario": consultaUsuario(jsonObject);
+                        break;
+
+                    case "datos": consultaDatos(jsonObject); break;
+
+                    case "pedido": existePedidos = true; break;
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        accionConsulta(existePedidos);
+    }*/
+
+    /*private void accionConsulta(boolean existePedidos){
         switch (consulta){
-            case "ciudad" : verificarPreferencias(); break;
-
-            case "usuario" : obtenerDatos(); break;
 
             case "persona" : consultarPedidos(); break;
 
+            case "usuario" : break;
+
             case "pedido" : if(existePedidos){
-                                listarEmpresas();
+
                                 gs.setExistePedidos(true);
                                 HiloPedidos hiloPedidos = new HiloPedidos(getApplicationContext(), gs);
                                 hiloPedidos.execute();
@@ -179,126 +298,78 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
                             }
                             else{
                                 gs.setActualizaEmpresas(true);
-                                cargar(2);
                             }
-                            break;
-
-            case "empresa" : gs.setActualizaEmpresas(true);
                             cargar(2);
                             break;
         }
+    }*/
+
+
+    private void consultaPersona(JSONObject jsonObject){
+        idUsuario = jsonObject.optInt("id");
+        if(idUsuario != 0){
+            String pass = jsonObject.optString("password");
+
+            if(pass.compareTo(password) == 0){
+                gs.setIdPersona(idUsuario);
+                gs.setEmail(jsonObject.optString("email"));
+                gs.setPassword(pass);
+
+                gs.setNombre(jsonObject.optString("nombre"));
+                gs.setTelefono(jsonObject.optString("telefono"));
+                gs.setDepartamento(jsonObject.optString("departamento"));
+                gs.setCiudad(jsonObject.optString("ciudad"));
+
+                int tipo = jsonObject.optInt("tipo_documento");
+                String numero = jsonObject.optString("numero_documento");
+
+                ArrayList<Documentos> datos = gs.getDocumentos();
+                for(int i=0;i<datos.size();i++){
+                    if(datos.get(i).getId() == tipo){
+                        gs.setDocumento(datos.get(i).getAbreviacion()+" "+numero);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-        if(gs.getLocalidades().size() == 0){
-            listarCiudades();
+    private void consultaPedidos(boolean existePedidos){
+        if(existePedidos){
+            gs.setExistePedidos(true);
+            HiloPedidos hiloPedidos = new HiloPedidos(getApplicationContext(), gs);
+            hiloPedidos.execute();
+            gs.setHiloPedidos(hiloPedidos);
         }
         else{
-            verificarPreferencias();
+            gs.setActualizaEmpresas(true);
         }
+        cargar(2);
     }
 
-    @Override
-    public void onResponse(JSONObject response) {
+    /*private void consultaUsuario(JSONObject jsonObject){
+        idUsuario = jsonObject.optInt("id");
+        if(idUsuario != 0){
+            String pass = jsonObject.optString("password");
 
-        JSONArray datos = response.optJSONArray(consulta);
-        JSONObject jsonObject = null;
-
-        boolean existePedidos = false;
-        boolean existeCategoria;
-        try {
-            jsonObject = datos.getJSONObject(0);
-            if(jsonObject.optString("id").compareTo("0") != 0) {
-                if(consulta.compareTo("ciudad") == 0){
-                    ArrayList<Localidad> localidad = new ArrayList<>();
-                    for (int i = 0; i < datos.length(); i++) {
-                        jsonObject = datos.getJSONObject(i);
-                        localidad.add(new Localidad(jsonObject.optInt("idDepartamento"),
-                                jsonObject.optString("departamento"),
-                                jsonObject.optInt("id"),
-                                jsonObject.optString("ciudad")));
-                    }
-                    gs.setLocalidades(localidad);
-                }
-
-                if(consulta.compareTo("usuario") == 0){
-                    idUsuario = jsonObject.optInt("id");
-                    if(idUsuario != 0){
-                        String pass = jsonObject.optString("password");
-
-                        if(pass.compareTo(password) == 0){
-                            gs.setUsuario(jsonObject.optString("usuario"));
-                            gs.setPassword(pass);
-                        }
-                    }
-                }
-                if(consulta.compareTo("persona") == 0){
-                    gs.setIdPersona(jsonObject.optInt("id"));
-                    gs.setNombre(jsonObject.optString("nombre"));
-                    gs.setTelefono(jsonObject.optString("telefono"));
-                    gs.setEmail(jsonObject.optString("email"));
-                    gs.setDepartamento(jsonObject.optString("departamento"));
-                    gs.setCiudad(jsonObject.optString("ciudad"));
-                }
-                if(consulta.compareTo("pedido") == 0){
-                    existePedidos = true;
-                }
-                if(consulta.compareTo("empresa") == 0){
-                    datosEmpresa = new ArrayList<>();
-                    categorias = new ArrayList<>();
-
-                    for (int i = 0; i < datos.length(); i++) {
-                        jsonObject = datos.getJSONObject(i);
-
-                        String categoria = jsonObject.optString("categoria");
-                        datosEmpresa.add(new DatosEmpresa(jsonObject.optInt("id"),
-                                jsonObject.optString("tipo"),
-                                categoria,
-                                jsonObject.optString("logo"),
-                                jsonObject.optString("nombre"),
-                                jsonObject.optInt("sucursal"),
-                                jsonObject.optString("nombre_sucursal"),
-                                jsonObject.optString("banner"),
-                                jsonObject.optString("descripcion"),
-                                jsonObject.optString("direccion"),
-                                jsonObject.optString("ubicacion"),
-                                jsonObject.optString("telefono"),
-                                jsonObject.optString("movil"),
-                                jsonObject.optString("ciudad"),
-                                jsonObject.optInt("domicilio"),
-                                jsonObject.optInt("pagos_online")));
-
-                        if(i == 0){
-                            categorias.add(categoria);
-                        }
-                        else{
-                            existeCategoria = false;
-                            for(int j=0;j<categorias.size();j++){
-                                if(categorias.get(j).compareTo(categoria) == 0){
-                                    existeCategoria = true;
-                                }
-                            }
-                            if(!existeCategoria){
-                                categorias.add(categoria);
-                            }
-                        }
-                    }
-                    gs.setDatosEmpresa(datosEmpresa);
-                    gs.setCategorias(categorias);
-                    gs.setFiltroCategorias(categorias);
-                }
-
+            if(pass.compareTo(password) == 0){
+                gs.setIdUsuario(idUsuario);
+                gs.setUsuario(jsonObject.optString("usuario"));
+                gs.setPassword(pass);
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
+    }*/
 
-        accionConsulta(existePedidos);
-    }
+    /*private void consultaDatos(JSONObject jsonObject){
+        gs.setIdPersona(jsonObject.optInt("id"));
+        gs.setNombre(jsonObject.optString("nombre"));
+        gs.setTelefono(jsonObject.optString("telefono"));
+        gs.setEmail(jsonObject.optString("email"));
+        gs.setDepartamento(jsonObject.optString("departamento"));
+        gs.setCiudad(jsonObject.optString("ciudad"));
+    }*/
 
-    @Override
+    /*@Override
     public void onErrorResponse(VolleyError error) {
         if(error.toString().compareTo("com.android.volley.TimeoutError") == 0){
             Toast.makeText(getApplicationContext(), "Error de conexión", Toast.LENGTH_SHORT).show();
@@ -307,5 +378,5 @@ public class Splash extends AppCompatActivity implements Response.Listener<JSONO
             Toast.makeText(getApplicationContext(), "Error de login "+ error.toString(), Toast.LENGTH_SHORT).show();
         }
         Log.i("ERROR", error.toString());
-    }
+    }*/
 }

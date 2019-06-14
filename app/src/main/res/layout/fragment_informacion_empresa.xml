@@ -100,12 +100,6 @@
                 android:layout_height="wrap_content"
                 android:text="Seguir" />
 
-            <Button
-                android:id="@+id/btnFotos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ver fotos" />
-
             <TextView
                 android:id="@+id/tvDireccion"
                 android:layout_width="match_parent"
@@ -133,15 +127,22 @@
 
             </android.support.v7.widget.RecyclerView>
 
-            <com.google.android.gms.maps.MapView xmlns:android="http://schemas.android.com/apk/res/android"
+            <com.google.android.gms.maps.MapView
                 android:id="@+id/mapView"
                 android:layout_width="match_parent"
                 android:layout_height="120dp" />
 
             <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvPromociones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </android.support.v7.widget.RecyclerView>
+
+            <android.support.v7.widget.RecyclerView
                 android:id="@+id/rvCartas"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content" />
 
         </LinearLayout>
     </ScrollView>

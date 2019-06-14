@@ -5,9 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,9 +27,11 @@ public class Cuenta extends Fragment {
 
     Button btnPerfil;
     Button btnDirecciones;
+    Button btnTarjetas;
     Button btnFavoritos;
     Button btnPedidos;
     Button btnSugerir;
+    Button btnComentario;
     Button btnAjustes;
     Button btnSession;
 
@@ -58,6 +59,15 @@ public class Cuenta extends Fragment {
             }
         });
 
+        btnTarjetas = v.findViewById(R.id.btnTarjetas);
+        btnTarjetas.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                fragment = new MisTarjetas();
+                reemplazarFragment();
+            }
+        });
+
         btnFavoritos = v.findViewById(R.id.btnFavoritos);
         btnFavoritos.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,6 +91,15 @@ public class Cuenta extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), SugerirEmpresa.class);
+                startActivity(intent);
+            }
+        });
+
+        btnComentario = v.findViewById(R.id.btnComentario);
+        btnComentario.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), Sugerencias.class);
                 startActivity(intent);
             }
         });
@@ -122,7 +141,6 @@ public class Cuenta extends Fragment {
     private void reemplazarFragment(){
 
         gs.setFragment(fragment);
-        FragmentManager fm = getActivity().getSupportFragmentManager();
 
         getActivity().getSupportFragmentManager()
                     .beginTransaction()

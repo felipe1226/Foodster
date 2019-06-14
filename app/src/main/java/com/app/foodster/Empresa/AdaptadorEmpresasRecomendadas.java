@@ -83,7 +83,7 @@ class AdaptadorEmpresasRecomendadas extends RecyclerView.Adapter<AdaptadorEmpres
             super(itemView);
             item_empresa = itemView.findViewById(R.id.item_empresa);
             ivFoto = itemView.findViewById(R.id.ivFoto);
-            tvNombre = itemView.findViewById(R.id.tvNombre);
+            tvNombre = itemView.findViewById(R.id.etNombre);
             tvCategoria = itemView.findViewById(R.id.tvCategoria);
         }
     }
@@ -99,7 +99,7 @@ class AdaptadorEmpresasRecomendadas extends RecyclerView.Adapter<AdaptadorEmpres
 
         AppCompatActivity activity = (AppCompatActivity) v.getContext();
 
-        fragInformacionEmpresa fragment = new fragInformacionEmpresa();
+        InformacionEmpresa fragment = new InformacionEmpresa();
         gs.setFragment(fragment);
         gs.setFragmentActual("InformacionEmpresas");
         fragment.setArguments(args);

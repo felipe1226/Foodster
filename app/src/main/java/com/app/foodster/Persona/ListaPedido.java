@@ -5,11 +5,11 @@ public class ListaPedido {
     private int id;
     private String empresa;
     private String estado;
-    private String cola;
+    private int cola;
     private String pago;
     private int total;
 
-    public ListaPedido(int id, String empresa, String estado, String cola, String pago, int total) {
+    public ListaPedido(int id, String empresa, String estado, int cola, String pago, int total) {
         this.id = id;
         this.empresa = empresa;
         this.estado = estado;
@@ -42,11 +42,11 @@ public class ListaPedido {
         this.estado = estado;
     }
 
-    public String getCola() {
+    public int getCola() {
         return cola;
     }
 
-    public void setCola(String cola) {
+    public void setCola(int cola) {
         this.cola = cola;
     }
 

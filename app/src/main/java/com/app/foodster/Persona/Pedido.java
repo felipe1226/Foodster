@@ -177,7 +177,7 @@ public class Pedido extends Fragment implements Response.Listener<JSONObject>, R
                             listaPedido.add(new ListaPedido(idPedido,
                                                             jsonObject.optString("empresa"),
                                                             jsonObject.optString("estado"),
-                                                            jsonObject.optString("cola"),
+                                                            jsonObject.optInt("cola"),
                                                             jsonObject.optString("metodo_pago"),
                                                             jsonObject.optInt("costo")));
                         }

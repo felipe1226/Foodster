@@ -13,14 +13,15 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
@@ -66,6 +67,7 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
 
     GlobalState gs;
 
+    ArrayList<Documentos> documento = new ArrayList<>();
     ArrayList<Localidad> localidad = new ArrayList<>();
     DatosLocalidad datosLocalidad;
 
@@ -81,13 +83,14 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
     LinearLayout layout_ubicacion;
     ImageButton btnBorrar;
 
-    EditText etUsuario;
-    EditText etPassword;
+    EditText etNumero;
     EditText etNombre;
     EditText etTelefono;
     EditText etDireccion;
     EditText etEmail;
+    EditText etPassword;
 
+    Spinner spDocumentos;
     Spinner spDepartamento;
     Spinner spCiudad;
 
@@ -100,7 +103,7 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
     String consulta;
     ArrayList<String> listaConsulta;
 
-    boolean existeUsuario;
+    boolean existeDocumento;
     boolean existeEmail;
 
     RequestQueue request;
@@ -133,8 +136,10 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
             }
         });
 
-        etUsuario = findViewById(R.id.etUsuario);
-        etUsuario.addTextChangedListener(new TextWatcher() {
+        spDocumentos = findViewById(R.id.spDocumentos);
+
+        etNumero = findViewById(R.id.etNumero);
+        etNumero.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -142,14 +147,14 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                etUsuario.setHighlightColor(Color.BLUE);
+                etNumero.setHighlightColor(Color.BLUE);
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (etUsuario.getText().toString().compareTo("") != 0) {
-                    existeUsuario = false;
-                    verificarUsuario();
+                if (etNumero.getText().toString().compareTo("") != 0) {
+                    existeDocumento = false;
+                    verificarDocumento();
                 }
             }
         });
@@ -157,7 +162,7 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
         etPassword = findViewById(R.id.etPassword);
         etNombre = findViewById(R.id.etNombre);
         etTelefono = findViewById(R.id.etMovil);
-        etDireccion = findViewById(R.id.etDireccion);
+        etDireccion = findViewById(R.id.etMensaje);
 
         etEmail = findViewById(R.id.etEmail);
         etEmail.addTextChangedListener(new TextWatcher() {
@@ -229,7 +234,25 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
             }
         });
 
+        cargarDocumentos();
         cargarDepartamentos();
+    }
+
+    private void cargarDocumentos() {
+
+        documento = gs.getDocumentos();
+
+        ArrayList<String> documentos = new ArrayList<>();
+
+        for(int i=0;i<documento.size();i++){
+            documentos.add(documento.get(i).getTipo());
+        }
+
+        ArrayAdapter<CharSequence> adaptador = new ArrayAdapter(this,
+                android.R.layout.simple_spinner_item,
+                documentos);
+
+        spDocumentos.setAdapter(adaptador);
     }
 
     private void cargarDepartamentos() {
@@ -261,28 +284,38 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
     }
 
     private void ValidarDatos() {
-        String usuario = etUsuario.getText().toString().trim();
+        String documento = spDocumentos.getSelectedItem().toString();
+        String numero = etNumero.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String nombre = etNombre.getText().toString().trim();
         String telefono = etTelefono.getText().toString().trim();
         String direccion = etDireccion.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String ciudad = spCiudad.getSelectedItem().toString();
+        boolean emailCorrecto = true;
+        boolean telefonoCorrecto = true;
 
-        if (usuario.compareTo("") != 0 && password.compareTo("") != 0 && nombre.compareTo("") != 0 && telefono.compareTo("") != 0
+        if (numero.compareTo("") != 0 && password.compareTo("") != 0 && nombre.compareTo("") != 0 && telefono.compareTo("") != 0
                 && direccion.compareTo("") != 0 && email.compareTo("") != 0) {
-            if (!existeUsuario  && !existeEmail) {
+
+            if (!existeDocumento  && !existeEmail) {
                 InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
 
                 inputMethodManager.hideSoftInputFromWindow(etEmail.getWindowToken(), 0);
 
-                registrar(usuario, password, nombre, telefono, direccion, email, ciudad);
-            } else {
-                if(existeUsuario){
-                    Toast.makeText(this, "El usuario ya existe", Toast.LENGTH_LONG).show();
+                if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+                    Toast.makeText(this, "Dirección email invalida", Toast.LENGTH_SHORT).show();
+                    etEmail.requestFocus();
                 }
                 else{
-                    Toast.makeText(this, "El email ya está registrado", Toast.LENGTH_LONG).show();
+                    registrar(documento, numero, password, nombre, telefono, direccion, email, ciudad);
+                }
+            } else {
+                if(existeDocumento){
+                    Toast.makeText(this, "El numero de documento ya se encuentra registrado", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    Toast.makeText(this, "El email ya se encuentra registrado", Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -309,10 +342,10 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
         dialog.show();
     }
 
-    private void verificarUsuario() {
-        consulta = "usuario";
+    private void verificarDocumento() {
+        consulta = "documento";
 
-        String url = "http://" + gs.getIp() + "/Usuario/consultar_usuario.php?usuario=" + etUsuario.getText().toString();
+        String url = "http://" + gs.getIp() + "/Persona/consultar_documento.php?documento=" + etNumero.getText().toString();
 
         url = url.replace(" ", "%20");
 
@@ -331,7 +364,7 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
         request.add(jsonObjectRequest);
     }
 
-    private void registrar(final String usuario, final String password, final String nombre, final String telefono, final String direccion, final String email,
+    private void registrar(final String documento, final String numero, final String password, final String nombre, final String telefono, final String direccion, final String email,
                               final String ciudad){
         StringRequest stringRequest = new StringRequest(Request.Method.POST, "http://" + gs.getIp() + "/Persona/registrar_persona.php",
                 new Response.Listener<String>() {
@@ -360,7 +393,8 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
 
                 Map<String, String> params = new Hashtable<String, String>();
 
-                params.put("usuario", usuario);
+                params.put("documento", documento);
+                params.put("numero", numero);
                 params.put("password", password);
                 params.put("nombre", nombre);
                 params.put("telefono", telefono);
@@ -391,15 +425,15 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
         try {
             jsonObject = datos.getJSONObject(0);
             if(jsonObject != null){
-                if (consulta.compareTo("usuario") == 0) {
+                if (consulta.compareTo("documento") == 0) {
                     int id = jsonObject.optInt("id");
                     if (id != 0) {
-                        existeUsuario = true;
-                        etUsuario.setTextColor(Color.RED);
+                        existeDocumento = true;
+                        etNumero.setTextColor(Color.RED);
                         Toast.makeText(this, "El usuario ya existe", Toast.LENGTH_SHORT).show();
                     } else {
-                        existeUsuario = false;
-                        etUsuario.setTextColor(Color.BLACK);
+                        existeDocumento = false;
+                        etNumero.setTextColor(Color.BLACK);
                     }
                 }
                 if (consulta.compareTo("email") == 0) {
@@ -539,6 +573,12 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
                 marcador = googleMap.addMarker(new MarkerOptions().position(coordenadas));
                 marcador.setDraggable(true);
 
+                googleMap.setMinZoomPreference(5);
+                googleMap.setMaxZoomPreference(16);
+
+                googleMap.getUiSettings().setMapToolbarEnabled(false);
+                googleMap.getUiSettings().setRotateGesturesEnabled(false);
+
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(coordenadas, 16));
 
                 googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
@@ -565,7 +605,7 @@ public class RegistroPersona extends AppCompatActivity implements Response.Liste
             }
         });
 
-        Button btnAceptar = dialog.findViewById(R.id.btnConfirmar);
+        Button btnAceptar = dialog.findViewById(R.id.btnAplicar);
         btnAceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

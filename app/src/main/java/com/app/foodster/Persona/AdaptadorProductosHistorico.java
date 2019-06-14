@@ -57,7 +57,7 @@ public class AdaptadorProductosHistorico extends RecyclerView.Adapter<AdaptadorP
             public MyViewHolder(@NonNull View itemView) {
                 super(itemView);
 
-                tvNombre = itemView.findViewById(R.id.tvNombre);
+                tvNombre = itemView.findViewById(R.id.etNombre);
                 tvPrecio = itemView.findViewById(R.id.tvPrecio);
                 tvDetalles = itemView.findViewById(R.id.tvDetalles);
             }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -12,7 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.app.foodster.GlobalState;
 import com.app.foodster.R;
 import com.squareup.picasso.Picasso;
@@ -66,12 +67,6 @@ public class AdaptadorListaProductos extends RecyclerView.Adapter<AdaptadorLista
                 int idEmpresa = producto.get(holder.getAdapterPosition()).getIdEmpresa();
                 int idProducto = producto.get(holder.getAdapterPosition()).getId();
 
-                /*Intent intent = new Intent(context, InformacionProducto.class);
-
-                intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP | intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("id", id);
-                context.startActivity(intent);*/
-
                 Bundle args = new Bundle();
                 args.putInt("idEmpresa", idEmpresa);
                 args.putInt("idProducto", idProducto);
@@ -80,7 +75,7 @@ public class AdaptadorListaProductos extends RecyclerView.Adapter<AdaptadorLista
 
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
 
-                fragInformacionProducto fragment = new fragInformacionProducto();
+                InformacionProducto fragment = new InformacionProducto();
                 gs.setFragment(fragment);
                 gs.setFragmentActual("InformacionProducto");
                 fragment.setArguments(args);
@@ -127,7 +122,7 @@ public class AdaptadorListaProductos extends RecyclerView.Adapter<AdaptadorLista
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
-        private ConstraintLayout item_producto;
+        private LinearLayout item_producto;
         private ImageView ivFoto;
         private TextView tvNombre;
         private TextView tvPrecio;
@@ -137,7 +132,7 @@ public class AdaptadorListaProductos extends RecyclerView.Adapter<AdaptadorLista
             super(itemView);
             item_producto = itemView.findViewById(R.id.item_producto);
             ivFoto= itemView.findViewById(R.id.ivFoto);
-            tvNombre = itemView.findViewById(R.id.tvNombre);
+            tvNombre = itemView.findViewById(R.id.etNombre);
             tvPrecio = itemView.findViewById(R.id.tvPrecio);
             tvPromocion = itemView.findViewById(R.id.tvPromocion);
         }

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/textView26"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Rango de precios"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/tvRango"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <org.florescu.android.rangeseekbar.RangeSeekBar
+        android:id="@+id/sbPrecios"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:activateOnDefaultValues="true"
+        app:barHeight="3dp"
+        app:textAboveThumbsColor="@color/colorPrimary" />
+
+
+
+    <EditText
+        android:id="@+id/etMinimo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Mínimo"
+        android:inputType="number"
+        android:textSize="16sp" />
+
+    <EditText
+        android:id="@+id/etMaximo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Máximo"
+        android:inputType="number"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnCancelar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#00ffffff"
+            android:text="@string/text_cancelar" />
+
+        <Button
+            android:id="@+id/btnAplicar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_weight="1"
+            android:background="#00ffffff"
+            android:text="@string/text_aplicar" />
+    </LinearLayout>
+</LinearLayout>

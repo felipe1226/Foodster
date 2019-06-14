@@ -15,13 +15,13 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvUsuario"
+            android:id="@+id/tvDocumento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Usuario" />
+            android:text="Documento" />
 
         <TextView
-            android:id="@+id/tvNombre"
+            android:id="@+id/etNombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Nombre" />

@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,7 +35,7 @@ public class Perfil extends Fragment implements Response.Listener<JSONObject>, R
     GlobalState gs;
 
     LinearLayout layout_datos;
-    TextView tvUsuario;
+    TextView tvDocumento;
     TextView tvNombre;
     TextView tvTelefono;
     TextView tvEmail;
@@ -65,8 +64,8 @@ public class Perfil extends Fragment implements Response.Listener<JSONObject>, R
         View v = inflater.inflate(R.layout.fragment_perfil, container, false);
 
         layout_datos = v.findViewById(R.id.layout_datos);
-        tvUsuario = v.findViewById(R.id.tvUsuario);
-        tvNombre = v.findViewById(R.id.tvNombre);
+        tvDocumento = v.findViewById(R.id.tvDocumento);
+        tvNombre = v.findViewById(R.id.etNombre);
         tvTelefono = v.findViewById(R.id.tvTelefono);
         tvEmail = v.findViewById(R.id.tvEmail);
         tvLocalidad = v.findViewById(R.id.tvLocalidad);
@@ -91,7 +90,7 @@ public class Perfil extends Fragment implements Response.Listener<JSONObject>, R
 
     private void obtenerDatos(){
 
-        tvUsuario.setText(gs.getUsuario());
+        tvDocumento.setText(gs.getDocumento());
         tvNombre.setText(gs.getNombre());
         tvTelefono.setText(gs.getTelefono());
         tvEmail.setText(gs.getEmail());

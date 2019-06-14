@@ -6,7 +6,7 @@
     android:padding="5dp">
 
     <EditText
-        android:id="@+id/etTitulo"
+        android:id="@+id/etNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -14,7 +14,7 @@
         android:inputType="textPersonName" />
 
     <EditText
-        android:id="@+id/etDireccion"
+        android:id="@+id/etMensaje"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -27,11 +27,19 @@
         android:layout_height="wrap_content"
         android:text="Mi ubicación" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/layout_mapa"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
 
         <com.google.android.gms.maps.MapView
             android:id="@+id/mapView"
@@ -47,7 +55,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
-            android:text="Puedes arrastrar el marcador para ajustar su posición." />
+            android:text="Puedes arrastrar el marcador para ajustar la posición." />
     </LinearLayout>
 
     <LinearLayout
@@ -62,17 +70,17 @@
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
+            android:layout_marginRight="5dp"
             android:layout_weight="1"
             android:text="Cancelar"
             android:textColor="@color/colorPrimary" />
 
         <Button
-            android:id="@+id/btnConfirmar"
+            android:id="@+id/btnAplicar"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
             android:layout_weight="1"
             android:text="Confirmar"
             android:textColor="@color/colorPrimary" />

@@ -12,8 +12,8 @@
         android:text="Sugerir establecimiento"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/btnConfirmar"
-        app:layout_constraintEnd_toStartOf="@+id/btnConfirmar"
+        app:layout_constraintBottom_toBottomOf="@+id/btnAplicar"
+        app:layout_constraintEnd_toStartOf="@+id/btnAplicar"
         app:layout_constraintStart_toEndOf="@+id/btnCancelar"
         app:layout_constraintTop_toTopOf="@+id/btnCancelar" />
 
@@ -30,7 +30,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/btnConfirmar"
+        android:id="@+id/btnAplicar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"
@@ -56,7 +56,7 @@
             android:id="@+id/etNombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
             android:ems="10"
             android:hint="Nombre"
             android:inputType="textPersonName"
@@ -64,10 +64,10 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:id="@+id/etDireccion"
+            android:id="@+id/etMensaje"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
             android:ems="10"
             android:hint="Direccion"
             android:inputType="textPostalAddress"
@@ -78,17 +78,17 @@
             android:id="@+id/spDepartamento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginTop="15dp"
             android:layout_weight="1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etDireccion" />
+            app:layout_constraintTop_toBottomOf="@+id/etMensaje" />
 
         <Spinner
             android:id="@+id/spCiudad"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
             android:layout_marginTop="10dp"
             android:layout_weight="1"
             app:layout_constraintStart_toEndOf="@+id/spDepartamento"

@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -32,9 +31,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.app.foodster.Empresa.fragInformacionEmpresa;
+import com.app.foodster.Empresa.InformacionEmpresa;
 import com.app.foodster.GlobalState;
-import com.app.foodster.Producto.fragInformacionProducto;
+import com.app.foodster.Producto.InformacionProducto;
 import com.app.foodster.R;
 
 import org.json.JSONArray;
@@ -286,7 +285,7 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
                 public void onClick(View view) {
                     int id = favorito.get(holder.getAdapterPosition()).getIdEmpresa();
 
-                    fragInformacionEmpresa fragment = new fragInformacionEmpresa();
+                    InformacionEmpresa fragment = new InformacionEmpresa();
                     gs.setFragment(fragment);
                     gs.setFragmentActual("InformacionEmpresa");
                     verInformacion(id, 0, fragment, v);
@@ -299,7 +298,7 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
                     int idEmpresa = favorito.get(holder.getAdapterPosition()).getIdEmpresa();
                     int idProducto = favorito.get(holder.getAdapterPosition()).getIdProducto();
 
-                    fragInformacionProducto fragment = new fragInformacionProducto();
+                    InformacionProducto fragment = new InformacionProducto();
                     gs.setFragment(fragment);
                     gs.setFragmentActual("InformacionProducto");
                     verInformacion(idEmpresa, idProducto, fragment, v);
@@ -439,7 +438,7 @@ public class ProductosFavoritos extends Fragment implements Response.Listener<JS
                 super(itemView);
 
                 tvEmpresa = itemView.findViewById(R.id.tvEmpresa);
-                tvNombre = itemView.findViewById(R.id.tvNombre);
+                tvNombre = itemView.findViewById(R.id.etNombre);
                 tvPrecio = itemView.findViewById(R.id.tvPrecio);
                 tvPromocion = itemView.findViewById(R.id.tvPromocion);
                 tvDetalles = itemView.findViewById(R.id.tvDescProducto);

@@ -1,8 +1,10 @@
 package com.app.foodster;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,17 +13,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
-import com.app.foodster.Empresa.fragInformacionEmpresa;
+import com.app.foodster.Empresa.Empresas;
+import com.app.foodster.Empresa.Eventos;
+import com.app.foodster.Empresa.InformacionEmpresa;
 import com.app.foodster.Persona.Carrito;
 import com.app.foodster.Persona.Cuenta;
-import com.app.foodster.Empresa.Empresas;
 import com.app.foodster.Persona.HistoricoPedidos;
 import com.app.foodster.Persona.Pedido;
 import com.app.foodster.Persona.Perfil;
 import com.app.foodster.Persona.ProductosFavoritos;
-import com.app.foodster.Producto.fragInformacionProducto;
+import com.app.foodster.Producto.InformacionProducto;
 
 public class Principal extends AppCompatActivity {
 
@@ -32,6 +34,8 @@ public class Principal extends AppCompatActivity {
 
     BottomNavigationView navigation;
 
+    //TextView tvConexion;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +45,9 @@ public class Principal extends AppCompatActivity {
         gs.setPrincipal(this);
 
         navigation = findViewById(R.id.navigation);
+        //tvConexion = findViewById(R.id.tvConexion);
+
+
 
         if(savedInstanceState == null){
             if(gs.getFragmentActual() == null){
@@ -55,12 +62,23 @@ public class Principal extends AppCompatActivity {
             else{
                 fragment = new Pedido();
             }
+
             addFragment();
             verificarSeleccion = true;
         }
 
         navigation.setOnNavigationItemSelectedListener(navListener);
+    }
 
+    public void verificarConexion(){
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (networkInfo != null && networkInfo.isConnected() && networkInfo.isAvailable()) {
+
+        } else {
+            //tvConexion.setVisibility(View.VISIBLE);
+        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -91,7 +109,8 @@ public class Principal extends AppCompatActivity {
                 }
 
                 verificarFragmentMenu();
-                reemplazarFragment();
+                prueba();
+                //reemplazarFragment();
             }
             verificarSeleccion = true;
             return true;
@@ -102,6 +121,8 @@ public class Principal extends AppCompatActivity {
 
         switch(gs.getFragmentActual()){
             case "Empresas": fragment = new Empresas();
+                break;
+            case "Eventos": fragment = new Eventos();
                 break;
 
             case "Mapa": fragment = new Mapa();
@@ -118,8 +139,8 @@ public class Principal extends AppCompatActivity {
     private void seleccionarIcono(){
         verificarSeleccion = false;
         if(fragment instanceof Empresas
-                || fragment instanceof fragInformacionEmpresa
-                || fragment instanceof fragInformacionProducto){
+                || fragment instanceof InformacionEmpresa
+                || fragment instanceof InformacionProducto){
             navigation.setSelectedItemId(R.id.menu_empresas);
         }
         if(fragment instanceof Mapa){
@@ -138,11 +159,34 @@ public class Principal extends AppCompatActivity {
 
     private void addFragment(){
 
-        seleccionarIcono();
+        //seleccionarIcono();
 
         android.support.v4.app.FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, fragment, fragment.getClass().toString()).addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    private void prueba(){
+
+        seleccionarIcono();
+
+        String tag = gs.getFragmentActual();
+
+        android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment currentFragment = fm.findFragmentById(R.id.fragment_container);
+        if (fragment.isAdded()) {
+
+            transaction
+                    .hide(currentFragment)
+                    .show(fragment);
+        } else {
+            transaction
+                    .hide(currentFragment)
+                    .add(R.id.fragment_container, fragment, tag);
+        }
+
+        transaction.commit();
     }
 
 
@@ -181,9 +225,16 @@ public class Principal extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        fragment = gs.getFragment();
+        if(fragment instanceof Empresas){
+        }
+        else{
+            getSupportFragmentManager().popBackStack();
+            fragment = gs.getFragment();
+            prueba();
+        }
 
-        int count = getSupportFragmentManager().getBackStackEntryCount();
+
+        /*int count = getSupportFragmentManager().getBackStackEntryCount();
         Toast.makeText(this, "Count: "+count, Toast.LENGTH_SHORT).show();
         if (count == 1) {
             if(fragment instanceof Empresas){
@@ -207,6 +258,17 @@ public class Principal extends AppCompatActivity {
             gs.setFragment(fragment);
             seleccionarIcono();
             //getSupportFragmentManager().popBackStack();
+        }*/
+
+        /*android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        Fragment currentFragment = getSupportFragmentManager().findFragmentByTag(gs.getFragmentActual());
+        Fragment oldFragment = getSupportFragmentManager().findFragmentByTag(oldFragmentTag)
+
+        if (currentFragment.isVisible() && oldFragment.isHidden()) {
+            transaction.hide(currentFragment).show(oldFragment);
         }
+
+        transaction.commit();*/
     }
 }

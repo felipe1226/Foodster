@@ -6,15 +6,18 @@ import android.support.v4.app.Fragment;
 import com.app.foodster.Empresa.DatosEmpresa;
 import com.app.foodster.Empresa.ListaEmpresasRecomendadas;
 import com.app.foodster.Empresa.ListaHorarios;
+import com.app.foodster.Persona.Documentos;
 import com.app.foodster.Persona.HiloPedidos;
 import com.app.foodster.Persona.ListaCarrito;
 import com.app.foodster.Persona.ListaDireccion;
 import com.app.foodster.Persona.ListaEmpresaCarrito;
 import com.app.foodster.Persona.ListaHistoricoPedidos;
 import com.app.foodster.Persona.ListaPedido;
+import com.app.foodster.Persona.ListaProductosFavoritos;
 import com.app.foodster.Persona.ListaProductosHistorico;
 import com.app.foodster.Persona.ListaProductosPedido;
-import com.app.foodster.Persona.ListaProductosFavoritos;
+import com.app.foodster.Persona.ListaTarjetas;
+import com.app.foodster.Producto.ListaCartas;
 import com.app.foodster.Producto.ListaProductos;
 import com.app.foodster.Ubicacion.Localidad;
 
@@ -27,6 +30,7 @@ public class GlobalState extends Application {
     public String busqueda = "";
 
     ArrayList<Localidad> localidades = new ArrayList<>();
+    ArrayList<Documentos> documentos = new ArrayList<>();
 
     public Principal principal = null;
     public HiloPedidos hiloPedidos = null;
@@ -35,10 +39,12 @@ public class GlobalState extends Application {
 
     public String fragmentActual = null;
 
+    public int idUsuario = 0;
     public String usuario = "";
     public String password = "";
 
     public int idPersona = 0;
+    public String documento = "";
     public String nombre = "";
     public String telefono = "";
     public String email = "";
@@ -56,6 +62,7 @@ public class GlobalState extends Application {
     ArrayList<ListaEmpresasRecomendadas> datosRecomendadas = new ArrayList<>();
     ArrayList<DatosEmpresa> datosEmpresa = null;
     ArrayList<ListaHorarios> datosHorarios = new ArrayList<>();
+    ArrayList<ListaCartas> datosCartas = new ArrayList<>();
     ArrayList<ListaProductos> datosProducto = new ArrayList<>();
 
     ArrayList<ListaEmpresaCarrito> datosEmpresaCarrito = null;
@@ -67,6 +74,7 @@ public class GlobalState extends Application {
     ArrayList<ListaHistoricoPedidos> datosHistorico = null;
     ArrayList<ListaProductosHistorico> datosProductoHistorico = null;
 
+    ArrayList<ListaTarjetas> datosTarjeta = null;
     ArrayList<ListaDireccion> datosDireccion = null;
     ArrayList<ListaProductosFavoritos> datosProductosFavoritos = null;
     ArrayList<String> categorias = null;
@@ -87,6 +95,14 @@ public class GlobalState extends Application {
 
     public void setBusqueda(String busqueda) {
         this.busqueda = busqueda;
+    }
+
+    public ArrayList<Documentos> getDocumentos() {
+        return documentos;
+    }
+
+    public void setDocumentos(ArrayList<Documentos> documentos) {
+        this.documentos = documentos;
     }
 
     public ArrayList<Localidad> getLocalidades() {
@@ -129,6 +145,14 @@ public class GlobalState extends Application {
         this.fragmentActual = fragmentActual;
     }
 
+    public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
     public String getUsuario() {
         return usuario;
     }
@@ -151,6 +175,14 @@ public class GlobalState extends Application {
 
     public void setIdPersona(int idPersona) {
         this.idPersona = idPersona;
+    }
+
+    public String getDocumento() {
+        return documento;
+    }
+
+    public void setDocumento(String documento) {
+        this.documento = documento;
     }
 
     public String getNombre() {
@@ -279,6 +311,14 @@ public class GlobalState extends Application {
         }
     }
 
+    public ArrayList<ListaCartas> getDatosCartas() {
+        return datosCartas;
+    }
+
+    public void setDatosCartas(ArrayList<ListaCartas> datosCartas) {
+        this.datosCartas = datosCartas;
+    }
+
     public ArrayList<ListaProductos> getDatosProducto() {
         return datosProducto;
     }
@@ -339,6 +379,14 @@ public class GlobalState extends Application {
 
     public void setDatosProductoHistorico(ArrayList<ListaProductosHistorico> datosProductoHistorico) {
         this.datosProductoHistorico = datosProductoHistorico;
+    }
+
+    public ArrayList<ListaTarjetas> getDatosTarjeta() {
+        return datosTarjeta;
+    }
+
+    public void setDatosTarjeta(ArrayList<ListaTarjetas> datosTarjeta) {
+        this.datosTarjeta = datosTarjeta;
     }
 
     public ArrayList<ListaDireccion> getDatosDireccion() {

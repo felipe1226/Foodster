@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="58dp"
-    tools:context=".Producto.fragInformacionProducto">
+    tools:context=".Producto.InformacionProducto">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -60,7 +60,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tvNombre"
+                android:id="@+id/etNombre"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="50dp"
@@ -99,7 +99,7 @@
                 android:id="@+id/tvCarta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tvNombre"
+                android:layout_below="@+id/etNombre"
                 android:layout_centerHorizontal="true"
                 android:text="Carta" />
 
@@ -144,7 +144,7 @@
                 android:id="@+id/tvDescuento"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/tvFecha"
+                android:layout_above="@+id/etMes"
                 android:text="Descuento" />
 
             <TextView
@@ -155,7 +155,7 @@
                 android:text="Descripcion promocion" />
 
             <TextView
-                android:id="@+id/tvFecha"
+                android:id="@+id/etMes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignTop="@+id/ivCarrito"

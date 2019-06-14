@@ -1,13 +1,11 @@
 package com.app.foodster.Ubicacion;
 
-import java.util.ArrayList;
-
 public class Localidad {
 
-    int idDepartamento;
-    String departamento;
-    int idCiudad;
-    String ciudad;
+    private int idDepartamento;
+    private String departamento;
+    private int idCiudad;
+    private String ciudad;
 
     public Localidad(int idDepartamento, String departamento, int idCiudad, String ciudad) {
         this.idDepartamento = idDepartamento;

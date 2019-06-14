@@ -13,8 +13,8 @@
         android:text="Datos de perfil"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/btnConfirmar"
-        app:layout_constraintEnd_toStartOf="@+id/btnConfirmar"
+        app:layout_constraintBottom_toBottomOf="@+id/btnAplicar"
+        app:layout_constraintEnd_toStartOf="@+id/btnAplicar"
         app:layout_constraintStart_toEndOf="@+id/btnCancelar"
         app:layout_constraintTop_toTopOf="@+id/btnCancelar" />
 
@@ -31,7 +31,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/btnConfirmar"
+        android:id="@+id/btnAplicar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"
@@ -56,6 +56,26 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView24">
+
+        <TextView
+            android:id="@+id/textView30"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tipo de documento" />
+
+        <Spinner
+            android:id="@+id/spDocumentos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/etNumero"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Numero de documento"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/etNombre"

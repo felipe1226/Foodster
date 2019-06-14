@@ -7,34 +7,31 @@ public class DatosEmpresa {
     String categoria;
     String logo;
     String nombre;
-    int sucursal;
-    String nombre_sucursal;
     String banner;
     String descripcion;
     String direccion;
     String ubicacion;
     String telefono;
     String movil;
+    String email;
     String ciudad;
     int domicilio;
     int pago;
 
-    public DatosEmpresa(int id, String tipo, String categoria, String logo, String nombre, int sucursal,
-                        String nombre_sucursal, String banner, String descripcion, String direccion, String ubicacion,
-                        String telefono, String movil, String ciudad, int domicilio, int pago) {
+    public DatosEmpresa(int id, String tipo, String categoria, String logo, String nombre, String banner, String descripcion, String direccion, String ubicacion,
+                        String telefono, String movil, String email, String ciudad, int domicilio, int pago) {
         this.id = id;
         this.tipo = tipo;
         this.categoria = categoria;
         this.logo = logo;
         this.nombre = nombre;
-        this.sucursal = sucursal;
-        this.nombre_sucursal = nombre_sucursal;
         this.banner = banner;
         this.descripcion = descripcion;
         this.direccion = direccion;
         this.ubicacion = ubicacion;
         this.telefono = telefono;
         this.movil = movil;
+        this.email = email;
         this.ciudad = ciudad;
         this.domicilio = domicilio;
         this.pago = pago;
@@ -78,22 +75,6 @@ public class DatosEmpresa {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public int getSucursal() {
-        return sucursal;
-    }
-
-    public void setSucursal(int sucursal) {
-        this.sucursal = sucursal;
-    }
-
-    public String getNombre_sucursal() {
-        return nombre_sucursal;
-    }
-
-    public void setNombre_sucursal(String nombre_sucursal) {
-        this.nombre_sucursal = nombre_sucursal;
     }
 
     public String getBanner() {
@@ -142,6 +123,14 @@ public class DatosEmpresa {
 
     public void setMovil(String movil) {
         this.movil = movil;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getCiudad() {

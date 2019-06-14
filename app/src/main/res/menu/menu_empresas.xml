@@ -10,11 +10,11 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_buscar"
-        android:title="Buscar por" />
+        android:id="@+id/action_categorias"
+        android:title="Categorías" />
 
     <item
-        android:id="@+id/action_filtrar"
-        android:title="Filtrar" />
+        android:id="@+id/action_precios"
+        android:title="Precios" />
 
 </menu>

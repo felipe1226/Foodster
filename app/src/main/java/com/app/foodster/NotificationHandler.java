@@ -18,10 +18,10 @@ public class NotificationHandler extends ContextWrapper{
     GlobalState gs = (GlobalState)getApplicationContext();
 
     public static final String CHANNEL_HIGH_ID = "1";
-    private final String CHANNER_HIGH_NAME = "HIGH CHANNEL";
+    private final String CHANNER_HIGH_NAME = "General";
 
     public static final String CHANNEL_LOW_ID = "2";
-    private final String CHANNER_LOW_NAME = "LOW CHANNEL";
+    private final String CHANNER_LOW_NAME = "Silencio";
 
     public NotificationHandler(Context context) {
         super(context);

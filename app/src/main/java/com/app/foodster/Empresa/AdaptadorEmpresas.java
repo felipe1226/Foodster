@@ -1,7 +1,7 @@
 package com.app.foodster.Empresa;
 
-import android.os.Bundle;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentManager;
@@ -52,6 +52,7 @@ public class AdaptadorEmpresas extends RecyclerView.Adapter<AdaptadorEmpresas.My
             }
         });
 
+
         return holder;
     }
 
@@ -88,7 +89,7 @@ public class AdaptadorEmpresas extends RecyclerView.Adapter<AdaptadorEmpresas.My
             super(itemView);
             item_empresa = itemView.findViewById(R.id.item_empresa);
             ivFoto = itemView.findViewById(R.id.ivFoto);
-            tvNombre = itemView.findViewById(R.id.tvNombre);
+            tvNombre = itemView.findViewById(R.id.etNombre);
             tvCategoria = itemView.findViewById(R.id.tvCategoria);
         }
     }
@@ -104,7 +105,7 @@ public class AdaptadorEmpresas extends RecyclerView.Adapter<AdaptadorEmpresas.My
 
         AppCompatActivity activity = (AppCompatActivity) v.getContext();
 
-        fragInformacionEmpresa fragment = new fragInformacionEmpresa();
+        InformacionEmpresa fragment = new InformacionEmpresa();
         gs.setFragment(fragment);
         gs.setFragmentActual("InformacionEmpresas");
         fragment.setArguments(args);
@@ -115,7 +116,5 @@ public class AdaptadorEmpresas extends RecyclerView.Adapter<AdaptadorEmpresas.My
                 .addToBackStack(null)
                 .replace(R.id.fragment_container, fragment, fragment.getClass().toString()).addToBackStack(null) // add and tag the new fragment
                 .commit();
-
-
     }
 }

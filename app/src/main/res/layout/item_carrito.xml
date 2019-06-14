@@ -32,7 +32,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView19" />
 
     <TextView
-        android:id="@+id/tvNombre"
+        android:id="@+id/etNombre"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
@@ -53,8 +53,8 @@
         android:layout_marginTop="5dp"
         android:text="Precio"
         android:textSize="10sp"
-        app:layout_constraintStart_toStartOf="@+id/tvNombre"
-        app:layout_constraintTop_toBottomOf="@+id/tvNombre" />
+        app:layout_constraintStart_toStartOf="@+id/etNombre"
+        app:layout_constraintTop_toBottomOf="@+id/etNombre" />
 
     <TextView
         android:id="@+id/tvPromocion"

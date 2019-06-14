@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -85,22 +84,33 @@ public class AdaptadorPedidos extends RecyclerView.Adapter<AdaptadorPedidos.MyVi
     @Override
     public void onBindViewHolder(@NonNull AdaptadorPedidos.MyViewHolder myViewHolder, int i) {
         myViewHolder.tvEmpresa.setText(pedido.get(i).getEmpresa());
+
+        int cola = pedido.get(i).getCola();
+        if(cola == 0){
+            myViewHolder.tvCola.setText("En espera.");
+        }
+        else{
+            myViewHolder.tvCola.setText(String.valueOf(cola));
+        }
+
         String estado = pedido.get(i).getEstado();
 
         switch (estado){
             case "Enviado" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_visto);
                 break;
-            case "Visto" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_enviado);
+            case "Atendido" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_enviado);
                 break;
             case "Preparacion" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_preparacion);
                 break;
+            case "Listo" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_listo);
+                    break;
+
             case "Despachado" : myViewHolder.ivEstado.setImageResource(R.drawable.ic_estado_despachado);
                                 myViewHolder.btnRecibido.setVisibility(View.VISIBLE);
                 break;
         }
         myViewHolder.tvEstado.setText(estado);
 
-        myViewHolder.tvCola.setText(pedido.get(i).getCola());
         myViewHolder.tvPago.setText(pedido.get(i).getPago());
         myViewHolder.tvTotal.setText(String.valueOf(pedido.get(i).getTotal()));
 

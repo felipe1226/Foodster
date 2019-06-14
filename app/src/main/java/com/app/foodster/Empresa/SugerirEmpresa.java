@@ -1,10 +1,9 @@
 package com.app.foodster.Empresa;
 
 import android.app.ProgressDialog;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,9 +12,12 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.android.volley.Request;
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -30,7 +32,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class SugerirEmpresa extends AppCompatActivity implements Response.Listener<JSONObject>, Response.ErrorListener{
+public class SugerirEmpresa extends AppCompatActivity {
 
     GlobalState gs;
     ProgressDialog carga;
@@ -64,7 +66,7 @@ public class SugerirEmpresa extends AppCompatActivity implements Response.Listen
         carga.setMessage("Registrando datos...");
         carga.setCanceledOnTouchOutside(false);
 
-        btnConfirmar = findViewById(R.id.btnConfirmar);
+        btnConfirmar = findViewById(R.id.btnAplicar);
         btnConfirmar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,7 +82,7 @@ public class SugerirEmpresa extends AppCompatActivity implements Response.Listen
         });
 
         etNombre = findViewById(R.id.etNombre);
-        etDireccion = findViewById(R.id.etDireccion);
+        etDireccion = findViewById(R.id.etMensaje);
 
         spDepartamento = findViewById(R.id.spDepartamento);
         spDepartamento.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -145,14 +147,37 @@ public class SugerirEmpresa extends AppCompatActivity implements Response.Listen
     private void registrar(String nombre, String direccion, String departamento, String ciudad){
         String url = "http://" + gs.getIp() + "/Persona/sugerir_empresa.php?idPersona="+gs.getIdPersona()
                 +"&nombre="+nombre+"&direccion="+direccion+"&departamento="+departamento+"&ciudad="+ciudad;
-
         url = url.replace(" ", "%20");
 
-        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
+        jsonObjectRequest = new JsonObjectRequest(url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                JSONArray datos = response.optJSONArray("registro");
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = datos.getJSONObject(0);
+                    if (jsonObject.optString("id").compareTo("0") != 0) {
+                        Toast.makeText(getApplicationContext(), "Muchas gracias por tu sugerencia!", Toast.LENGTH_LONG).show();
+                        finish();
+                    }
+                    else{
+                        Toast.makeText(getApplicationContext(), "Error al registrar los datos", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                detectarError(error);
+            }
+        });
         request.add(jsonObjectRequest);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    /*@RequiresApi(api = Build.VERSION_CODES.M)
     public void onResponse(JSONObject response) {
 
         JSONArray datos = response.optJSONArray("registro");
@@ -171,11 +196,23 @@ public class SugerirEmpresa extends AppCompatActivity implements Response.Listen
             e.printStackTrace();
         }
         carga.cancel();
-    }
+    }*/
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    /*@RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     public void onErrorResponse(VolleyError error) {
         Toast.makeText(this, "Error "+ error.toString(), Toast.LENGTH_SHORT).show();
+    }*/
+
+    private void detectarError(VolleyError error){
+        if (error instanceof AuthFailureError){
+            Log.e("VOLLEY", "Se ha producido un fallo con las credenciales. " + error.getMessage() );
+        } else if (error instanceof NetworkError) {
+            Log.e("VOLLEY", "Se ha producido un fallo en la red. "+ error.getMessage());
+        } else if (error instanceof NoConnectionError) {
+            Log.e("VOLLEY", "Se ha producido un fallo en la conexión. "+ error.getMessage());
+        } else if (error instanceof TimeoutError) {
+            Log.e("VOLLEY", "Fallo en tiempo de espera. "+ error.getMessage());
+        }
     }
 }

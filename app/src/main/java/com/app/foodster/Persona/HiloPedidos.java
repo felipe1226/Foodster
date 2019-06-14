@@ -33,6 +33,7 @@ public class HiloPedidos extends AsyncTask<Void, Integer, Boolean> implements Re
     private NotificationHandler notificationHandler;
     boolean existePedido;
     boolean cambioEstado;
+    boolean cambioCola;
     GlobalState gs;
     Fragment fragment = null;
 
@@ -147,8 +148,10 @@ public class HiloPedidos extends AsyncTask<Void, Integer, Boolean> implements Re
 
                 notificaciones = new ArrayList<>();
                 cambioEstado = false;
+                cambioCola = false;
                 int id = 0;
                 String estado = "";
+                int cola = 0;
                 String empresa = "";
 
                 if(listaPedidos.size() > 0){
@@ -158,12 +161,17 @@ public class HiloPedidos extends AsyncTask<Void, Integer, Boolean> implements Re
                             id = jsonObject.optInt("id");
                             if(listaPedidos.get(j).getId() == id){
                                 estado = jsonObject.optString("estado");
+                                cola = jsonObject.optInt("cola");
                                 if(listaPedidos.get(j).getEstado().compareTo(estado) != 0){
                                     cambioEstado = true;
                                     empresa = listaPedidos.get(j).getEmpresa();
                                     notificaciones.add(id+"-"+empresa+"-"+estado);
 
                                     listaPedidos.get(j).setEstado(estado);
+                                }
+                                if(listaPedidos.get(j).getCola() != cola ){
+                                    cambioCola = true;
+                                    listaPedidos.get(j).setCola(cola);
                                 }
                             }
                         }
@@ -176,7 +184,7 @@ public class HiloPedidos extends AsyncTask<Void, Integer, Boolean> implements Re
                         listaPedidos.add(new ListaPedido(jsonObject.optInt("id"),
                                 jsonObject.optString("nombreEmpresa"),
                                 jsonObject.optString("estado"),
-                                jsonObject.optString("cola"),
+                                jsonObject.optInt("cola"),
                                 jsonObject.optString("metodo_pago"),
                                 jsonObject.optInt("costo")));
 
@@ -192,14 +200,9 @@ public class HiloPedidos extends AsyncTask<Void, Integer, Boolean> implements Re
                         String mensaje = campos[1]+": Pedido "+campos[2].toLowerCase();
                         notificacion(ind, mensaje);
                     }
-                    /*if(cont == 1){
-                        String mensaje = empresa+": Pedido "+estadoCambio.toLowerCase();
-                        notificacion(mensaje);
-                    }
-                    else{
-                        String mensaje = "Cambio de estado en tus pedidos";
-                        notificacion(mensaje);
-                    }*/
+
+                }
+                if(cambioEstado || cambioCola){
                     if(fragment != null) {
                         fragment.getFragmentManager().beginTransaction().detach(fragment).attach(fragment).commit();
                     }

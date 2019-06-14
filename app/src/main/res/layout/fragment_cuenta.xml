@@ -30,6 +30,16 @@
         android:textAllCaps="false" />
 
     <Button
+        android:id="@+id/btnTarjetas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#00ffffff"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="Mis tarjetas"
+        android:textAllCaps="false" />
+
+    <Button
         android:id="@+id/btnFavoritos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -57,6 +67,16 @@
         android:gravity="left|center_vertical"
         android:paddingLeft="20dp"
         android:text="Sugerir un establecimiento"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/btnComentario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#00ffffff"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="Envianos un comentario"
         android:textAllCaps="false" />
 
     <Button

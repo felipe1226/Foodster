@@ -3,6 +3,8 @@
     package="com.app.foodster">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
@@ -30,19 +32,15 @@
             android:name=".Principal"
             android:label=""
             android:windowSoftInputMode="adjustNothing|stateHidden" />
-        <activity android:name=".Empresa.InformacionEmpresa" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".Producto.InformacionProducto" />
         <activity android:name=".Login" />
-        <activity
-            android:name=".Persona.Notificaciones"
-            android:label="@string/title_activity_notificaciones" />
         <activity android:name=".Empresa.SugerirEmpresa" />
-        <activity android:name=".Persona.EditarPerfil"></activity>
+        <activity android:name=".Persona.EditarPerfil" />
+        <activity android:name=".Persona.Sugerencias"></activity>
     </application>
 
 </manifest>

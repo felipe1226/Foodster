@@ -66,13 +66,24 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Usuario"
+                android:text="Tipo de documento"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/divider15" />
 
+            <Spinner
+                android:id="@+id/spDocumentos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textView28"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Numero de documento" />
+
             <EditText
-                android:id="@+id/etUsuario"
+                android:id="@+id/etNumero"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:ems="10"
@@ -81,41 +92,20 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
 
             <TextView
-                android:id="@+id/textView2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:text="Contraseña"
-                app:layout_constraintTop_toBottomOf="@+id/etUsuario"
-                tools:layout_editor_absoluteX="0dp" />
-
-            <EditText
-                android:id="@+id/etPassword"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:ems="10"
-                android:inputType="textPassword"
-                app:layout_constraintTop_toBottomOf="@+id/textView2"
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="317dp" />
-
-            <TextView
                 android:id="@+id/textView3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="Nombre"
-                app:layout_constraintTop_toBottomOf="@+id/etPassword"
                 tools:layout_editor_absoluteX="0dp" />
+
 
             <EditText
                 android:id="@+id/etNombre"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:ems="10"
-                android:inputType="textPersonName"
-                app:layout_constraintTop_toBottomOf="@+id/textView3"
-                tools:layout_editor_absoluteX="5dp" />
+                android:inputType="textPersonName" />
 
             <TextView
                 android:id="@+id/textView4"
@@ -149,7 +139,7 @@
                 android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/etDireccion"
+                    android:id="@+id/etMensaje"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -212,6 +202,24 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView5"
                 tools:layout_editor_absoluteY="143dp" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Contraseña"
+                app:layout_constraintTop_toBottomOf="@+id/etNumero"
+                tools:layout_editor_absoluteX="0dp" />
+
+            <EditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ems="10"
+                android:inputType="textPassword"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="317dp" />
 
             <TextView
                 android:id="@+id/textView6"

@@ -7,7 +7,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -100,7 +99,7 @@ public class AdaptadorHistoricoPedidos extends RecyclerView.Adapter<AdaptadorHis
             super(itemView);
 
             tvEmpresa = itemView.findViewById(R.id.tvEmpresa);
-            tvFecha = itemView.findViewById(R.id.tvFecha);
+            tvFecha = itemView.findViewById(R.id.etMes);
             btnVer = itemView.findViewById(R.id.btnVer);
             rvProductos = itemView.findViewById(R.id.rvProductos);
             tvPago = itemView.findViewById(R.id.tvPago);

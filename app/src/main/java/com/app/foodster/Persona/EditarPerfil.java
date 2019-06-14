@@ -35,16 +35,20 @@ public class EditarPerfil extends AppCompatActivity implements Response.Listener
     GlobalState gs;
     ProgressDialog carga;
 
+    ArrayList<Documentos> documentos = new ArrayList<>();
     ArrayList<Localidad> localidad = new ArrayList<>();
     DatosLocalidad datosLocalidad;
 
     ImageButton btnConfirmar;
     ImageButton btnCancelar;
 
+
+    EditText etNumero;
     EditText etNombre;
     EditText etMovil;
     EditText etEmail;
 
+    Spinner spDocumentos;
     Spinner spDepartamento;
     Spinner spCiudad;
 
@@ -63,7 +67,7 @@ public class EditarPerfil extends AppCompatActivity implements Response.Listener
         carga.setMessage("Actualizando datos...");
         carga.setCanceledOnTouchOutside(false);
 
-        btnConfirmar = findViewById(R.id.btnConfirmar);
+        btnConfirmar = findViewById(R.id.btnAplicar);
         btnConfirmar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,6 +82,9 @@ public class EditarPerfil extends AppCompatActivity implements Response.Listener
             }
         });
 
+        spDocumentos = findViewById(R.id.spDocumentos);
+
+        etNumero = findViewById(R.id.etNumero);
         etNombre = findViewById(R.id.etNombre);
         etMovil = findViewById(R.id.etMovil);
         etEmail = findViewById(R.id.etEmail);
@@ -100,35 +107,78 @@ public class EditarPerfil extends AppCompatActivity implements Response.Listener
     }
 
     private void obtenerDatos(){
+
+        String documento[] = gs.getDocumento().split(" ");
+        etNumero.setText(documento[1]);
         etNombre.setText(gs.getNombre());
         etMovil.setText(gs.getTelefono());
         etEmail.setText(gs.getEmail());
 
+        cargarDocumentos();
         cargarDepartamentos();
     }
 
+    public int obtenerPosicionItem(Spinner spinner, String item){
+
+        int posicion = 0;
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(item)) {
+                posicion = i;
+            }
+        }
+        return posicion;
+    }
+
     private void validarDatos(){
+        String documento = spDocumentos.getSelectedItem().toString();
+        String numero = etNumero.getText().toString().trim();
+
         String nombre = etNombre.getText().toString().trim();
         String movil = etMovil.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String ciudad = spCiudad.getSelectedItem().toString();
 
-        if(nombre.compareTo("") != 0 && movil.compareTo("") != 0 &&  email.compareTo("") != 0){
-            registrar(nombre, movil, email, ciudad);
+        if(numero. compareTo("") != 0 && nombre.compareTo("") != 0 && movil.compareTo("") != 0 &&  email.compareTo("") != 0){
+            registrar(documento, numero, nombre, movil, email, ciudad);
         }
         else{
             Toast.makeText(this, "Complete los campos, por favor", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void registrar(String nombre, String movil, String email, String ciudad){
+    private void registrar(String documento, String numero, String nombre, String movil, String email, String ciudad){
         String url = "http://" + gs.getIp() + "/Persona/actualizar_perfil.php?idPersona="+gs.getIdPersona()
-                +"&nombre="+nombre+"&movil="+movil+"&email="+email+"&ciudad="+ciudad;
+                +"&documento="+documento+"&numero="+numero+"&nombre="+nombre+"&movil="+movil+"&email="+email+"&ciudad="+ciudad;
 
         url = url.replace(" ", "%20");
 
         jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
         request.add(jsonObjectRequest);
+    }
+
+    private void cargarDocumentos() {
+
+        documentos = gs.getDocumentos();
+
+        ArrayList<String> documento = new ArrayList<>();
+
+        String abrev[] = gs.getDocumento().split(" ");
+        String item = "";
+
+        for(int i=0;i<documentos.size();i++){
+            documento.add(documentos.get(i).getTipo());
+            if(documentos.get(i).getAbreviacion().compareTo(abrev[0]) == 0){
+                item = documentos.get(i).getTipo();
+            }
+        }
+
+        ArrayAdapter<CharSequence> adaptador = new ArrayAdapter(this,
+                android.R.layout.simple_spinner_item,
+                documento);
+
+        spDocumentos.setAdapter(adaptador);
+
+        spDocumentos.setSelection(obtenerPosicionItem(spDocumentos, item));
     }
 
     private void cargarDepartamentos() {
@@ -167,11 +217,23 @@ public class EditarPerfil extends AppCompatActivity implements Response.Listener
         try {
             jsonObject = datos.getJSONObject(0);
             if(jsonObject.optString("id").compareTo("0") != 0) {
+
                 gs.setNombre(etNombre.getText().toString());
                 gs.setTelefono(etMovil.getText().toString());
                 gs.setEmail(etEmail.getText().toString());
                 gs.setDepartamento(spDepartamento.getSelectedItem().toString());
                 gs.setCiudad(spCiudad.getSelectedItem().toString());
+
+                ArrayList<Documentos> documentos = gs.getDocumentos();
+
+                String tipo = spDocumentos.getSelectedItem().toString();
+                String numero = etNumero.getText().toString();
+                for(int i=0;i<documentos.size();i++){
+                    if(documentos.get(i).getTipo().compareTo(tipo) == 0){
+                        gs.setDocumento(documentos.get(i).getAbreviacion()+" "+numero);
+                        break;
+                    }
+                }
 
                 Toast.makeText(this, "Perfil actualizado", Toast.LENGTH_LONG).show();
                 finish();
